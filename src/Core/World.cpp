@@ -1,0 +1,27 @@
+#include "Entity.h"
+#include "World.h"
+#include "Gpu/Renderer.h"
+
+namespace Lgt {
+
+World::World() {}
+
+Entity World::createEntity(std::string name) {
+    auto   handle = m_Registry.create();
+    Entity e(handle, this);
+    return e;
+}
+
+void World::destroyEntity(Entity entity) {
+    m_Registry.destroy(entity.handle());
+}
+
+void World::update(float /*deltaTime*/) {
+    // Placeholder for physics, animation, script systems
+}
+
+Gpu::DrawList World::drawList() {
+    return Gpu::DrawList();
+}
+
+} // namespace Lgt
