@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <vector>
 
-#define VK_NO_PROTOTYPES
 #include <Volk/volk.h>
 #include "vk_mem_alloc.h"
 

@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
-#include "Vulkan/Swapchain.h"
+#include <Core/Vulkan/Swapchain.h>
 #include "Resource.h"
 
 namespace Lgt::Gpu {

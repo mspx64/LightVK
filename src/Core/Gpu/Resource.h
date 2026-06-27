@@ -3,9 +3,10 @@
 #include <memory>
 #include <string>
 
-#include "Vulkan/Helpers.h"
-#include "Core/Logger.h"
-#include "Core/Core.h"
+#include <Core/Vulkan/Helpers.h>
+
+#include <Core/Logger.h>
+#include <Core/Core.h>
 
 namespace Lgt::Gpu {
 
@@ -184,7 +185,7 @@ private:
 // BufferHandle CreateIBO(size_t size, bool dynamic = false);
 // BufferHandle CreateVBO(size_t size, bool dynamic = false);
 BufferHandle CreateSSBO(size_t size, bool dynamic = false);
-BufferHandle CreateUBO(size_t size); 
+BufferHandle CreateUBO(size_t size);
 
 // TextureHandle createTexture();
 // samplerHandle createSampler();

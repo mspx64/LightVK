@@ -79,8 +79,8 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
         vendor = "ARM";
         break;
     default:
-        vendorStr = fmt::format("0x{:04X}", props.vendorID);
-        vendor    = vendorStr.c_str();
+       // vendorStr = fmt::format("0x{:04X}", props.vendorID);
+       // vendor    = vendorStr.c_str();
         break;
     }
     RENDERX_INFO("  Vendor: {}", vendor);

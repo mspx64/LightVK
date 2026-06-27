@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 
 #include "Assets.h"
-#include "Gpu/Renderer.h"
+#include <Core/Gpu/Renderer.h>
 
 namespace Lgt::Editor {
 /*the plan -> ? editor loads the gltf and all the assets and builds a map and then the game loads that map at
@@ -17,10 +17,10 @@ private:
     entt::registry registry_;
 
 public:
-    void                 updateDrawList();
-    const Gpu::DrawList& drawList() const { return drawList_; }
-
-    void addModle(const Assets::Model&, bool dynamic = true, glm::mat4 transform = glm::mat4(1.0f));
+    void           updateDrawList();
+    
+    
+    Gpu::DrawList* drawList() { return &drawList_; }
 };
 
 } // namespace  Lgt::Editor
