@@ -4,7 +4,7 @@ set(CMAKE_TOOLCHAIN_FILE
     CACHE STRING ""
 )
 
-project(DoggoEngine VERSION 0.1.0)
+project(LightVK VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -69,6 +69,8 @@ add_custom_target(compile_shaders ALL
 file(GLOB_RECURSE CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Editor/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Editor/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Gpu/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Gpu/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Vulkan/*.h"

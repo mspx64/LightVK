@@ -25,11 +25,9 @@ Thumbs.db
 .swp
 *~
 
-# Dependencies (if using local copies)
-external/glfw/
-external/glm/
-
 # Compiled output
 *.obj
 *.lib
 *.a
+
+Assets/

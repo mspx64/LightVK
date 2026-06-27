@@ -6,7 +6,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#define ENABLE_ASSERTIONS 1;
+#define ENABLE_ASSERTIONS
 
 class Log {
 public:
@@ -153,7 +153,7 @@ inline const char* VkResultToString(int64_t result) {
 #elif defined(__GNUC__)
 #define LGT_DEBUGBREAK() __builtin_trap()
 #elif defined(_MSC_VER)
-#define LGT_DEBUGBREAK() __debugbreak()
+#define ECS_DEBUGBREAK() __debugbreak()
 #else
 #include <cstdlib>
 #define LGT_DEBUGBREAK() std::abort()

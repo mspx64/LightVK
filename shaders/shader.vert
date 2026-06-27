@@ -6,7 +6,7 @@ struct Vertex {
     vec3 position;
     vec3 normal;
     vec2 uv;
-    vec4 tangent;   
+    vec4 tangent;
 };
 
 layout(push_constant) uniform PushData {
@@ -14,10 +14,10 @@ layout(push_constant) uniform PushData {
     uint vertexBufferIndex;
     uint indexBufferIndex;
     uint materialIndex;
+    mat4 transform;
 }
 pushData;
 
-// Added instance names (e.g., 'vertexHeaps') to the descriptor heap arrays
 layout(std430, descriptor_heap) buffer VertexBuffer {
     Vertex vertices[];
 }

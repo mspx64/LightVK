@@ -1,7 +1,7 @@
 #pragma once
 #include "Gpu/Renderer.h"
 #include "Gpu/Resource.h"
-#include "Core/Assets.h"
+#include "Editor/Assets.h"
 #include "Logger.h"
 #include "World.h"
 

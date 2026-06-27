@@ -13,7 +13,7 @@ struct DrawCommand {
     uint32_t  vertexBufferIndex = 0;
     uint32_t  indexBufferIndex  = 0;
     uint32_t  materialIndex     = 0;
-    glm::mat4 transform;
+    glm::mat4 transform         = glm::mat4(1.0f);
 };
 
 struct DrawList {

@@ -46,13 +46,6 @@ struct Model {
     std::vector<Material> materials;
 };
 
-/*the runtime resources are stored in the ecs but the actual physical gpu object have a globel storage
-the resource manager creates and destroys the gpu objects and returns the handle of the object to caller
-the descriptor heap can register  buffers , textures and samplers to the gpu and reutrn the runtime gpu
-index to use in the shader
-the question here is that how should we glue all this together
-*/
-
 bool LoadGltf(const std::filesystem::path& path, Model* outmodel);
 bool LoadFbx(const std::filesystem::path& path, Model* outmodel);
 bool LoadObj(const std::filesystem::path& path, Mesh* outmesh);

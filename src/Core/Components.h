@@ -11,6 +11,7 @@ struct Mesh {
     uint32_t indexBufferIndex  = 0;
     uint32_t materialIndex     = 0;
 };
+
 struct Transform {};
 struct Tag {};
 

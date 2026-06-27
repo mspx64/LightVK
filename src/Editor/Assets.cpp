@@ -1,5 +1,5 @@
 #include "Assets.h"
-#include "Logger.h"
+#include "Core/Logger.h"
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
@@ -49,6 +49,7 @@ bool LoadGltf(const std::filesystem::path& path, Model* model) {
     // Load mheshes
     for (auto& mesh : gltf->meshes) {
         for (auto& prim : mesh.primitives) {
+
             Assets::Mesh importedMesh;
             importedMesh.name = std::string(mesh.name);
 

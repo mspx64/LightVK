@@ -32,7 +32,7 @@ void Application::Run() {
 
     Assets::Model model;
 
-    Assets::LoadGltf("D:/DEV/cpp/Vulkan_exp/Assets/Models/Sphere/Untitled.gltf", &model);
+    Assets::LoadGltf("D:/DEV/cpp/Vulkan_exp/Assets/Sphere/Untitled.gltf", &model);
     // Assets::LoadGltf("D:/DEV/cpp/Vulkan_exp/Assets/Models/Cube/Untitled.gltf", &model);
     // Assets::LoadGltf("D:/DEV/cpp/Vulkan_exp/Assets/Models/sopnza_palace/Sponza_palace.gltf", &model);
     // Assets::LoadGltf("D:/DEV/cpp/Vulkan_exp/Assets/Models/Monkey/Monkey.gltf", &model);
