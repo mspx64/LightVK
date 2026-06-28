@@ -1,8 +1,10 @@
 #pragma once
+#include "../Core.h"
 #include "Device.h"
 #include "Instance.h"
 #include "Allocator.h"
 #include "Surface.h"
+#include "Swapchain.h"
 #include "Uploader.h"
 
 namespace Lgt::Vulkan {
@@ -19,6 +21,6 @@ struct Contex {
     void                           Shoutdown();
 };
 
-extern Contex g_Contex;
+extern LIGHTVK_API Contex g_Contex;
 
 } // namespace Lgt::Vulkan

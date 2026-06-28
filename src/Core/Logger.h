@@ -134,18 +134,18 @@ inline const char* VkResultToString(int64_t result) {
 
 // for backward compatibility
 #define LOG_INIT()                 Log::Init()
-#define RENDERX_TRACE(msg, ...)    Log::Core()->trace("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define RENDERX_INFO(...)          Log::Core()->info(__VA_ARGS__)
-#define RENDERX_WARN(msg, ...)     Log::Core()->warn("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define RENDERX_ERROR(msg, ...)    Log::Core()->error("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define RENDERX_CRITICAL(msg, ...) Log::Core()->critical("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_TRACE(msg, ...)    Log::Core()->trace("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_INFO(...)          Log::Core()->info(__VA_ARGS__)
+#define LIGHTVK_WARN(msg, ...)     Log::Core()->warn("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_ERROR(msg, ...)    Log::Core()->error("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_CRITICAL(msg, ...) Log::Core()->critical("[{}]: " msg, __func__, ##__VA_ARGS__)
 #define LOG_SHUTDOWN()             Log::Shutdown();
 
 #define VK_CHECK(x)                                                                                                              \
     do {                                                                                                                         \
         VkResult err = x;                                                                                                        \
         if (err != VK_SUCCESS)                                                                                                   \
-            RENDERX_ERROR("[Vulkan] {} at {}:{}", VkResultToString(err), __FILE__, __LINE__);                                    \
+            LIGHTVK_ERROR("[Vulkan] {} at {}:{}", VkResultToString(err), __FILE__, __LINE__);                                    \
     } while (0)
 
 #if defined(__clang__)
@@ -153,7 +153,7 @@ inline const char* VkResultToString(int64_t result) {
 #elif defined(__GNUC__)
 #define LGT_DEBUGBREAK() __builtin_trap()
 #elif defined(_MSC_VER)
-#define ECS_DEBUGBREAK() __debugbreak()
+#define LGT_DEBUGBREAK() __debugbreak()
 #else
 #include <cstdlib>
 #define LGT_DEBUGBREAK() std::abort()

@@ -27,10 +27,10 @@ The rendering backend is built around `VK_EXT_descriptor_heap`, which allows a f
 ---
 
 Two CMake targets:
-- `RenderXCore` — static lib, all engine code
-- `RenderX_Editor` — executable, links Core + ImGui
+- `LightVKCore` — static lib, all engine code
+- `LightVK_Editor` — executable, links Core + ImGui
 
-The plan is to eventually add a third `RenderX_Game` target that loads a binary scene file exported from the editor and runs hardcoded game logic — no scripting.
+The plan is to eventually add a third `LightVK_Game` target that loads a binary scene file exported from the editor and runs hardcoded game logic — no scripting.
 
 ---
 

@@ -5,7 +5,7 @@ set(CMAKE_TOOLCHAIN_FILE
     CACHE STRING ""
 )
 
-project(RenderX VERSION 0.1.0)
+project(LightVK VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,5 +59,6 @@ set(VOLK_SOURCE "${VULKAN_SDK_PATH}/Include/Volk/volk.c"
     CACHE STRING "Volk loader source path")
 
 # ── Sub-projects ──────────────────────────────────────────────────
-add_subdirectory(src/Core)    # → static lib   RenderXCore
-add_subdirectory(src/Editor)  # → executable   RenderX_Editor
+add_subdirectory(src/Core)    # → static lib   LightVKCore
+add_subdirectory(src/Editor)  # → executable   LightVK_Editor
+add_subdirectory(src/Runtime) # → executable   LightVK_Runtime

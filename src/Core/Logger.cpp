@@ -129,7 +129,7 @@ void Log::Init() {
     consoleSink->set_pattern_for_level(spdlog::level::critical, "%^[%n]%v%$");
 
     // File sink with detailed patterns (no rate limiting for files)
-    auto baseFileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/RenderX.log", true);
+    auto baseFileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/LightVK.log", true);
     auto fileSink     = std::make_shared<LevelPatternSink>(baseFileSink);
     fileSink->set_level(spdlog::level::trace);
 
@@ -142,7 +142,7 @@ void Log::Init() {
     fileSink->set_pattern_for_level(spdlog::level::critical, "[%Y-%m-%d %T.%e] [C] [thread %t] [%n] [%s:%#] [%!] %v");
 
     s_CoreLogger = std::make_shared<spdlog::async_logger>(
-        "RENDERX", spdlog::sinks_init_list{consoleSink, fileSink}, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+        "LIGHTVK", spdlog::sinks_init_list{consoleSink, fileSink}, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
 
     s_CoreLogger->set_level(spdlog::level::trace);
     s_CoreLogger->flush_on(spdlog::level::err);

@@ -40,7 +40,7 @@ DescriptorHeap::DescriptorHeap(size_t size, bool isResorceHeap, bool isSamplerHe
     addressinfo.sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     addressinfo.buffer = m_Buffer;
     m_DeviceAddress    = vkGetBufferDeviceAddress(Lgt::Vulkan::g_Contex.device->logical(), &addressinfo);
-    RENDERX_INFO("Created DescriptorHeap -size : {} bytes -BufferDeviceAdder : {}", m_Size, m_DeviceAddress);
+    LIGHTVK_INFO("Created DescriptorHeap -size : {} bytes -BufferDeviceAdder : {}", m_Size, m_DeviceAddress);
 }
 
 DescriptorHeap::~DescriptorHeap() {
@@ -86,7 +86,7 @@ uint32_t DescriptorHeap::AllocateSSBO(const BufferHandle& buffer) {
 
     m_CurrentOffset += Vulkan::g_Contex.device->DescriptorHeapProperties().bufferDescriptorSize;
 
-    RENDERX_INFO("DescriptorHeap : Allocated SSBO ,  GPU index : {}", gpuIndex);
+    LIGHTVK_INFO("DescriptorHeap : Allocated SSBO ,  GPU index : {}", gpuIndex);
     return gpuIndex;
 }
 
@@ -125,7 +125,7 @@ uint32_t DescriptorHeap::AllocateUBO(const BufferHandle& buffer) {
 
     m_CurrentOffset += Vulkan::g_Contex.device->DescriptorHeapProperties().bufferDescriptorSize;
 
-    RENDERX_INFO("DescriptorHeap : Allocated UBO ,  GPU index : {}", gpuIndex);
+    LIGHTVK_INFO("DescriptorHeap : Allocated UBO ,  GPU index : {}", gpuIndex);
     return gpuIndex;
 }
 

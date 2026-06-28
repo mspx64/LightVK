@@ -78,7 +78,7 @@ public:
     }
 
     void free(Handle& handle) {
-        RENDERX_ASSERT_MSG(handle.isValid(), "ResourcePool::free: trying to free an invalid handle");
+        LIGHTVK_ASSERT_MSG(handle.isValid(), "ResourcePool::free: trying to free an invalid handle");
 
         uint64_t raw   = Decrypt(handle.id);
         auto     index = static_cast<ValueType>(raw & 0xFFFFFFFF);
@@ -94,7 +94,7 @@ public:
 
     ResourceType* get(const Handle& handle) {
         if (!handle.isValid()) {
-            RENDERX_WARN("ResourcePool::get : invalid handle");
+            LIGHTVK_WARN("ResourcePool::get : invalid handle");
             return nullptr;
         }
 
@@ -103,7 +103,7 @@ public:
         auto     gen   = static_cast<ValueType>(raw >> 32);
 
         if (!(index < _My_resource.size() && _My_generation[index] == gen)) {
-            RENDERX_WARN("stale or foreign handle detected");
+            LIGHTVK_WARN("stale or foreign handle detected");
             return nullptr;
         }
 

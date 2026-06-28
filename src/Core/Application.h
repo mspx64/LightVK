@@ -1,7 +1,7 @@
 #pragma once
 #include "Gpu/Renderer.h"
 #include "Gpu/Resource.h"
-#include "Editor/Assets.h"
+
 #include "Logger.h"
 #include "World.h"
 
@@ -12,11 +12,14 @@ public:
     void Run();
     void Shutdown();
 
-private:
+    virtual ~Application() = default;
+
+protected:
+    virtual void OnInit() {}
+    virtual void OnUpdate(uint32_t currentFrame) {}
+    virtual void OnShutdown() {}
+
     GLFWwindow* window_ = nullptr;
     World       world_;
-
-    // debug purpose only
-    Gpu::DrawList BuildDrawList(const Assets::Model& model);
 };
 } // namespace Lgt

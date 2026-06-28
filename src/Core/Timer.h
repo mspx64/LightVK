@@ -1,5 +1,5 @@
 #pragma once
-// include/RenderX/core/Timer.hpp
+// include/LightVK/core/Timer.hpp
 // ─────────────────────────────────────────────────────────────────────────────
 // High-resolution frame timer using GLFW's monotonic clock.
 // Call Tick() once per frame; access DeltaTime / TotalTime / FPS after.

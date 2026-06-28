@@ -33,11 +33,11 @@ BufferHandle CreateSSBO(size_t size, bool dynamic) {
     if (Vulkan::g_Contex.allocator->createBuffer(bufferci, allocInfo, buffer.buffer, buffer.allocation)) {
         buffer.deviceAddress = getBufferDeviceAddress(buffer.buffer);
         buffer.size          = size;
-        RENDERX_INFO("Created SSBO size: {}", size);
+        LIGHTVK_INFO("Created SSBO size: {}", size);
         return g_Buffers.allocate(buffer);
     }
 
-    RENDERX_CRITICAL("Failed to create SSBO");
+    LIGHTVK_CRITICAL("Failed to create SSBO");
     return BufferHandle();
 }
 
@@ -65,11 +65,11 @@ BufferHandle CreateUBO(size_t size) {
         buffer.deviceAddress = getBufferDeviceAddress(buffer.buffer);
         buffer.size          = size;
         buffer.mapped        = Vulkan::g_Contex.allocator->map(buffer.allocation);
-        RENDERX_INFO("Created UBO size: {}", size);
+        LIGHTVK_INFO("Created UBO size: {}", size);
         return g_Buffers.allocate(buffer);
     }
 
-    RENDERX_CRITICAL("Failed to create UBO");
+    LIGHTVK_CRITICAL("Failed to create UBO");
     return BufferHandle();
 }
 

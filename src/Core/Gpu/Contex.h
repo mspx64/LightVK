@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Core.h"
 #include "Renderer.h"
 #include "Resource.h"
 #include "DescriptorHeap.h"
@@ -15,8 +16,8 @@ struct Context {
     void Shoutdown();
 };
 
-extern Context                              g_Contex;
-extern ResourcePool<Texture, TextureHandle> g_Textures;
-extern ResourcePool<Buffer, BufferHandle>   g_Buffers;
+extern LIGHTVK_API Context                              g_Contex;
+extern LIGHTVK_API ResourcePool<Texture, TextureHandle> g_Textures;
+extern LIGHTVK_API ResourcePool<Buffer, BufferHandle>   g_Buffers;
 
 } // namespace Lgt::Gpu

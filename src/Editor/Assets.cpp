@@ -112,7 +112,7 @@ bool LoadGltf(const std::filesystem::path& path, Model* model) {
         }
     }
 
-    RENDERX_INFO(
+    LIGHTVK_INFO(
         "GltfImporter: '{}' : {} meshes, {} materials", path.filename().string(), model->meshes.size(), model->materials.size());
     return true;
 }

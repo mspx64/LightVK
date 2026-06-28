@@ -1,6 +1,16 @@
 #pragma once
 #include "glm/glm.hpp"
 
+#ifdef _WIN32
+    #ifdef LIGHTVK_CORE_BUILD
+        #define LIGHTVK_API __declspec(dllexport)
+    #else
+        #define LIGHTVK_API __declspec(dllimport)
+    #endif
+#else
+    #define LIGHTVK_API
+#endif
+
 namespace Lgt {
 
 #define LGT_DEFINE_HANDLE(Name)                                                                                                  \

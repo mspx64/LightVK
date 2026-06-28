@@ -9,7 +9,7 @@
 void VulkanInstance::Init(bool enableValidation, const std::vector<const char*>& validationLayers) {
     validation_ = enableValidation;
     if (validation_ && !checkValidationLayerSupport(validationLayers))
-        RENDERX_ERROR("Validation layers requested but not available");
+        LIGHTVK_ERROR("Validation layers requested but not available");
 
     createInstance(validationLayers);
     //setupDebugMessenger();

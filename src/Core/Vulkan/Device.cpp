@@ -39,9 +39,9 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
     const auto& props = info.properties;
     const auto& mem   = info.memoryProperties;
 
-    RENDERX_INFO("------------------------------------------------------");
-    RENDERX_INFO("Device [{}]: {}", index, props.deviceName);
-    RENDERX_INFO("------------------------------------------------------");
+    LIGHTVK_INFO("------------------------------------------------------");
+    LIGHTVK_INFO("Device [{}]: {}", index, props.deviceName);
+    LIGHTVK_INFO("------------------------------------------------------");
 
     const char* deviceType = "Unknown";
     switch (props.deviceType) {
@@ -60,7 +60,7 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
     default:
         break;
     }
-    RENDERX_INFO("  Type: {}", deviceType);
+    LIGHTVK_INFO("  Type: {}", deviceType);
 
     // Fixed: store formatted string to avoid dangling pointer on default case
     std::string vendorStr;
@@ -83,22 +83,22 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
        // vendor    = vendorStr.c_str();
         break;
     }
-    RENDERX_INFO("  Vendor: {}", vendor);
+    LIGHTVK_INFO("  Vendor: {}", vendor);
 
     uint32_t major = VK_API_VERSION_MAJOR(props.apiVersion);
     uint32_t minor = VK_API_VERSION_MINOR(props.apiVersion);
     uint32_t patch = VK_API_VERSION_PATCH(props.apiVersion);
-    RENDERX_INFO("  API Version: {}.{}.{}", major, minor, patch);
-    RENDERX_INFO("  Driver Version: {}", props.driverVersion);
+    LIGHTVK_INFO("  API Version: {}.{}.{}", major, minor, patch);
+    LIGHTVK_INFO("  Driver Version: {}", props.driverVersion);
 
     uint64_t totalMemory = 0;
     for (uint32_t i = 0; i < mem.memoryHeapCount; i++) {
         if (mem.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
             totalMemory += mem.memoryHeaps[i].size;
     }
-    RENDERX_INFO("  VRAM: {} MB", totalMemory / (1024 * 1024));
+    LIGHTVK_INFO("  VRAM: {} MB", totalMemory / (1024 * 1024));
 
-    RENDERX_INFO("  Queue Families:");
+    LIGHTVK_INFO("  Queue Families:");
     for (uint32_t i = 0; i < info.queueFamilies.size(); i++) {
         const auto& family = info.queueFamilies[i];
         std::string caps;
@@ -117,26 +117,26 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
         if (presentSupport)
             caps += "Present ";
 
-        RENDERX_INFO("    [{}] Count: {}, Flags: {}", i, family.queueCount, caps);
+        LIGHTVK_INFO("    [{}] Count: {}, Flags: {}", i, family.queueCount, caps);
     }
 
-    RENDERX_INFO("  Limits:");
-    RENDERX_INFO("    Max Image Dimension 2D:                    {}", props.limits.maxImageDimension2D);
-    RENDERX_INFO("    Max Framebuffer Width:                     {}", props.limits.maxFramebufferWidth);
-    RENDERX_INFO("    Max Framebuffer Height:                    {}", props.limits.maxFramebufferHeight);
-    RENDERX_INFO("    Max Viewport Dimensions:                   {}x{}",
+    LIGHTVK_INFO("  Limits:");
+    LIGHTVK_INFO("    Max Image Dimension 2D:                    {}", props.limits.maxImageDimension2D);
+    LIGHTVK_INFO("    Max Framebuffer Width:                     {}", props.limits.maxFramebufferWidth);
+    LIGHTVK_INFO("    Max Framebuffer Height:                    {}", props.limits.maxFramebufferHeight);
+    LIGHTVK_INFO("    Max Viewport Dimensions:                   {}x{}",
                  props.limits.maxViewportDimensions[0],
                  props.limits.maxViewportDimensions[1]);
-    RENDERX_INFO("    Max Bound Descriptor Sets:                 {}", props.limits.maxBoundDescriptorSets);
-    RENDERX_INFO("    Max Per-Stage Descriptor Samplers:         {}", props.limits.maxPerStageDescriptorSamplers);
-    RENDERX_INFO("    Max Per-Stage Descriptor Uniform Buffers:  {}", props.limits.maxPerStageDescriptorUniformBuffers);
-    RENDERX_INFO("    Max Per-Stage Descriptor Storage Buffers:  {}", props.limits.maxPerStageDescriptorStorageBuffers);
-    RENDERX_INFO("    Max Per-Stage Descriptor Sampled Images:   {}", props.limits.maxPerStageDescriptorSampledImages);
-    RENDERX_INFO("    Max Compute Shared Memory Size:            {} KB", props.limits.maxComputeSharedMemorySize / 1024);
-    RENDERX_INFO("    Max Compute Work Group Invocations:        {}", props.limits.maxComputeWorkGroupInvocations);
-    RENDERX_INFO("    Timestamp Compute and Graphics:            {}", props.limits.timestampComputeAndGraphics ? "Yes" : "No");
+    LIGHTVK_INFO("    Max Bound Descriptor Sets:                 {}", props.limits.maxBoundDescriptorSets);
+    LIGHTVK_INFO("    Max Per-Stage Descriptor Samplers:         {}", props.limits.maxPerStageDescriptorSamplers);
+    LIGHTVK_INFO("    Max Per-Stage Descriptor Uniform Buffers:  {}", props.limits.maxPerStageDescriptorUniformBuffers);
+    LIGHTVK_INFO("    Max Per-Stage Descriptor Storage Buffers:  {}", props.limits.maxPerStageDescriptorStorageBuffers);
+    LIGHTVK_INFO("    Max Per-Stage Descriptor Sampled Images:   {}", props.limits.maxPerStageDescriptorSampledImages);
+    LIGHTVK_INFO("    Max Compute Shared Memory Size:            {} KB", props.limits.maxComputeSharedMemorySize / 1024);
+    LIGHTVK_INFO("    Max Compute Work Group Invocations:        {}", props.limits.maxComputeWorkGroupInvocations);
+    LIGHTVK_INFO("    Timestamp Compute and Graphics:            {}", props.limits.timestampComputeAndGraphics ? "Yes" : "No");
 
-    RENDERX_INFO("  Score: {}\n", info.score);
+    LIGHTVK_INFO("  Score: {}\n", info.score);
 }
 
 // ─── scoreDevice ─────────────────────────────────────────────────────────────
@@ -197,13 +197,13 @@ int VulkanDevice::selectDevice(const std::vector<DeviceInfo>& devices) const {
         }
     }
 
-    RENDERX_INFO(
+    LIGHTVK_INFO(
         "Auto-selecting device [{}]: {} (highest score: {})", bestIndex, devices[bestIndex].properties.deviceName, bestScore);
     return devices[bestIndex].index;
 #else
-    RENDERX_INFO("Suitable devices:");
+    LIGHTVK_INFO("Suitable devices:");
     for (const auto& d : devices)
-        RENDERX_INFO("  [{}] {} - Score: {}", d.index, d.properties.deviceName, d.score);
+        LIGHTVK_INFO("  [{}] {} - Score: {}", d.index, d.properties.deviceName, d.score);
 
     int      recommendedInfoIndex = 0;
     uint32_t bestScore            = devices[0].score;
@@ -215,11 +215,11 @@ int VulkanDevice::selectDevice(const std::vector<DeviceInfo>& devices) const {
         }
     }
 
-    RENDERX_INFO("Recommended: [{}] {} (highest score: {})",
+    LIGHTVK_INFO("Recommended: [{}] {} (highest score: {})",
                  devices[recommendedInfoIndex].index,
                  devices[recommendedInfoIndex].properties.deviceName,
                  bestScore);
-    RENDERX_INFO("Press Enter to accept, or type a device index to override:");
+    LIGHTVK_INFO("Press Enter to accept, or type a device index to override:");
 
     std::string input;
     std::getline(std::cin, input);
@@ -231,15 +231,15 @@ int VulkanDevice::selectDevice(const std::vector<DeviceInfo>& devices) const {
         int selectedIndex = std::stoi(input);
         for (size_t i = 0; i < devices.size(); i++) {
             if (devices[i].index == selectedIndex) {
-                RENDERX_INFO("Using selected device [{}]: {}", selectedIndex, devices[i].properties.deviceName);
+                LIGHTVK_INFO("Using selected device [{}]: {}", selectedIndex, devices[i].properties.deviceName);
                 return selectedIndex;
             }
         }
-        RENDERX_WARN("Invalid device index {}. Falling back to recommended: {}",
+        LIGHTVK_WARN("Invalid device index {}. Falling back to recommended: {}",
                      selectedIndex,
                      devices[recommendedInfoIndex].properties.deviceName);
     } catch (const std::exception& e) {
-        RENDERX_WARN("Invalid input '{}' ({}). Falling back to recommended: {}",
+        LIGHTVK_WARN("Invalid input '{}' ({}). Falling back to recommended: {}",
                      input,
                      e.what(),
                      devices[recommendedInfoIndex].properties.deviceName);
@@ -279,7 +279,7 @@ bool VulkanDevice::validateExtensions(const std::vector<const char*>&           
                                       const std::vector<VkExtensionProperties>& available) const {
     bool allSupported = true;
 
-    RENDERX_INFO("Validating {} requested extension(s):", requested.size());
+    LIGHTVK_INFO("Validating {} requested extension(s):", requested.size());
     for (const char* reqExt : requested) {
         bool found = false;
         for (const auto& avail : available) {
@@ -290,9 +290,9 @@ bool VulkanDevice::validateExtensions(const std::vector<const char*>&           
         }
 
         if (found)
-            RENDERX_INFO("[OK]:{}", reqExt);
+            LIGHTVK_INFO("[OK]:{}", reqExt);
         else {
-            RENDERX_ERROR("[MISSING] {}", reqExt);
+            LIGHTVK_ERROR("[MISSING] {}", reqExt);
             allSupported = false;
         }
     }
@@ -335,7 +335,7 @@ void VulkanDevice::logEnabledFeatures(const DeviceFeatureChain& chain) const {
     const auto& f13      = chain.vk13;
     const auto& descHeap = chain.descHeap;
 
-    RENDERX_INFO("Enabled Features:");
+    LIGHTVK_INFO("Enabled Features:");
 
     struct Feature {
         const char* label;
@@ -374,16 +374,16 @@ void VulkanDevice::logEnabledFeatures(const DeviceFeatureChain& chain) const {
 
     for (const auto& [label, enabled, version] : features) {
         if (enabled)
-            RENDERX_INFO("  [{}] {}", version, label);
+            LIGHTVK_INFO("  [{}] {}", version, label);
     }
 }
 
 // ─── logEnabledExtensions ────────────────────────────────────────────────────
 
 void VulkanDevice::logEnabledExtensions(const std::vector<const char*>& extensions) const {
-    RENDERX_INFO("Enabled Extensions ({}):", extensions.size());
+    LIGHTVK_INFO("Enabled Extensions ({}):", extensions.size());
     for (const char* ext : extensions)
-        RENDERX_INFO("  - {}", ext);
+        LIGHTVK_INFO("  - {}", ext);
 }
 
 // ─── createLogicalDevice ─────────────────────────────────────────────────────
@@ -426,11 +426,11 @@ void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredE
     if (m_TransferFamily == UINT32_MAX)
         m_TransferFamily = m_ComputeFamily;
 
-    RENDERX_INFO("Queue Families:");
-    RENDERX_INFO("  Graphics: {}", m_GraphicsFamily);
-    RENDERX_INFO("  Compute:  {}", m_ComputeFamily);
-    RENDERX_INFO("  Transfer: {}", m_TransferFamily);
-    RENDERX_INFO("  Present:  {}", m_PresentFamily);
+    LIGHTVK_INFO("Queue Families:");
+    LIGHTVK_INFO("  Graphics: {}", m_GraphicsFamily);
+    LIGHTVK_INFO("  Compute:  {}", m_ComputeFamily);
+    LIGHTVK_INFO("  Transfer: {}", m_TransferFamily);
+    LIGHTVK_INFO("  Present:  {}", m_PresentFamily);
 
     // ── Validate extensions ───────────────────────────────────────────────────
     uint32_t availableCount = 0;
@@ -479,7 +479,7 @@ void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredE
     // logEnabledExtensions(requiredExtensions);
     // logEnabledFeatures(chain);
     queryProps();
-    RENDERX_INFO("Logical device created successfully\n");
+    LIGHTVK_INFO("Logical device created successfully\n");
 }
 
 void VulkanDevice::queryProps() {
@@ -491,12 +491,12 @@ void VulkanDevice::queryProps() {
     vkGetPhysicalDeviceProperties2(m_PhysicalDevice, &m_PhysicalDeviceProps);
     vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &m_PhysicalDeviceMemoryProps);
 
-    RENDERX_INFO("");
-    RENDERX_INFO("=================== DESCRIPTOE_HEAP_PROPS ====================");
-    RENDERX_INFO("Sampler Descriptor size : {}", m_DescHeapProps.samplerDescriptorSize);
-    RENDERX_INFO("buffer  Descriptor size : {}", m_DescHeapProps.bufferDescriptorSize);
-    RENDERX_INFO("image   Descriptor size : {}", m_DescHeapProps.imageDescriptorSize);
-    RENDERX_INFO("=================== ===================== ====================");
+    LIGHTVK_INFO("");
+    LIGHTVK_INFO("=================== DESCRIPTOE_HEAP_PROPS ====================");
+    LIGHTVK_INFO("Sampler Descriptor size : {}", m_DescHeapProps.samplerDescriptorSize);
+    LIGHTVK_INFO("buffer  Descriptor size : {}", m_DescHeapProps.bufferDescriptorSize);
+    LIGHTVK_INFO("image   Descriptor size : {}", m_DescHeapProps.imageDescriptorSize);
+    LIGHTVK_INFO("=================== ===================== ====================");
 }
 
 // ─── Constructor / Destructor ─────────────────────────────────────────────────
@@ -519,7 +519,7 @@ VulkanDevice::VulkanDevice(VkInstance                      instance,
     std::vector<DeviceInfo> infos;
     for (uint32_t i = 0; i < count; i++) {
         if (!isDeviceSuitable(devices[i])) {
-            RENDERX_WARN("Device [{}] skipped (missing graphics or present support)", i);
+            LIGHTVK_WARN("Device [{}] skipped (missing graphics or present support)", i);
             continue;
         }
 

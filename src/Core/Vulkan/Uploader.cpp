@@ -67,7 +67,7 @@ void VulkanLoadTimeStagingUploader::flush() {
     if (m_BufferUploads.empty() && m_TextureUploads.empty())
         return;
 
-    RENDERX_INFO("[LoadUploader] Flushing {} buffer(s) and {} texture(s) ({:.2f} MB)",
+    LIGHTVK_INFO("[LoadUploader] Flushing {} buffer(s) and {} texture(s) ({:.2f} MB)",
                  m_BufferUploads.size(),
                  m_TextureUploads.size(),
                  m_CPUData.size() / (1024.0f * 1024.0f));
@@ -201,7 +201,7 @@ void VulkanLoadTimeStagingUploader::flush() {
 
     g_Contex.allocator->destroyBuffer(stagingBuffer, stagingAlloc);
 
-    RENDERX_INFO("[LoadUploader] Flush complete -> staging memory freed");
+    LIGHTVK_INFO("[LoadUploader] Flush complete -> staging memory freed");
 
     m_CPUData.clear();
     m_BufferUploads.clear();

@@ -12,7 +12,7 @@ uint32_t selectMemoryType(VulkanDevice* device, uint32_t typeFilter, VkMemoryPro
             return i;
     }
 
-    RENDERX_CRITICAL("Cannot find a sutiable memory type for the buffer");
+    LIGHTVK_CRITICAL("Cannot find a sutiable memory type for the buffer");
     return UINT32_MAX;
 }
 
