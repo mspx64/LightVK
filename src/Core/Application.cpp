@@ -1,6 +1,6 @@
 #include "Application.h"
-#include "Vulkan/Contex.h"
-#include "Gpu/Contex.h"
+#include "Vulkan/Context.h"
+#include "Gpu/Context.h"
 
 #include "Math.h"
 
@@ -15,12 +15,12 @@ void Application::Init() {
 
     window_ = glfwCreateWindow(WIDTH, HEIGHT, "DoggEngine", nullptr, nullptr);
 
-    Vulkan::g_Contex.Init(window_);
-    auto props = Vulkan::g_Contex.device->DescriptorHeapProperties();
+    Vulkan::g_Context.Init(window_);
+    auto props = Vulkan::g_Context.device->DescriptorHeapProperties();
     LIGHTVK_INFO(
         "bufferDescriptorSize={}, bufferDescriptorAlignment={}", props.bufferDescriptorSize, props.bufferDescriptorAlignment);
 
-    Gpu::g_Contex.Init(window_);
+    Gpu::g_Context.Init(window_);
 
     auto prespective = Matrix::Perspective(1.45, WIDTH / HEIGHT, 1, 100);
     prespective.print();
@@ -40,8 +40,8 @@ void Application::Run() {
 
 void Application::Shutdown() {
     OnShutdown();
-    Gpu::g_Contex.Shoutdown();
-    Vulkan::g_Contex.Shoutdown();
+    Gpu::g_Context.Shutdown();
+    Vulkan::g_Context.Shutdown();
 }
 
 } // namespace Lgt

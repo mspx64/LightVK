@@ -12,7 +12,7 @@ static bool HasFlag(VkQueueFlags flags, VkQueueFlags bit) {
 
 // ─── gatherDeviceInfo ────────────────────────────────────────────────────────
 
-DeviceInfo VulkanDevice::gatherDeviceInfo(VkPhysicalDevice device) const {
+DeviceInfo VulkanDevice::GatherDeviceInfo(VkPhysicalDevice device) const {
     DeviceInfo info;
     info.device = device;
 
@@ -35,7 +35,7 @@ DeviceInfo VulkanDevice::gatherDeviceInfo(VkPhysicalDevice device) const {
 
 // ─── logDeviceInfo ───────────────────────────────────────────────────────────
 
-void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
+void VulkanDevice::LogDeviceInfo(uint32_t index, const DeviceInfo& info) const {
     const auto& props = info.properties;
     const auto& mem   = info.memoryProperties;
 
@@ -141,7 +141,7 @@ void VulkanDevice::logDeviceInfo(uint32_t index, const DeviceInfo& info) const {
 
 // ─── scoreDevice ─────────────────────────────────────────────────────────────
 
-uint32_t VulkanDevice::scoreDevice(const DeviceInfo& info) const {
+uint32_t VulkanDevice::ScoreDevice(const DeviceInfo& info) const {
     uint32_t score = 0;
 
     if (info.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
@@ -185,7 +185,7 @@ uint32_t VulkanDevice::scoreDevice(const DeviceInfo& info) const {
 
 // ─── selectDevice ────────────────────────────────────────────────────────────
 
-int VulkanDevice::selectDevice(const std::vector<DeviceInfo>& devices) const {
+int VulkanDevice::SelectDevice(const std::vector<DeviceInfo>& devices) const {
 #ifndef RX_DEBUG_BUILD
     int      bestIndex = 0;
     uint32_t bestScore = devices[0].score;
@@ -251,7 +251,7 @@ int VulkanDevice::selectDevice(const std::vector<DeviceInfo>& devices) const {
 
 // ─── isDeviceSuitable ────────────────────────────────────────────────────────
 
-bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device) const {
+bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice device) const {
     uint32_t count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
     std::vector<VkQueueFamilyProperties> families(count);
@@ -275,7 +275,7 @@ bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device) const {
 
 // ─── validateExtensions ──────────────────────────────────────────────────────
 
-bool VulkanDevice::validateExtensions(const std::vector<const char*>&           requested,
+bool VulkanDevice::ValidateExtensions(const std::vector<const char*>&           requested,
                                       const std::vector<VkExtensionProperties>& available) const {
     bool allSupported = true;
 
@@ -302,7 +302,7 @@ bool VulkanDevice::validateExtensions(const std::vector<const char*>&           
 
 // ─── requestFeatures ─────────────────────────────────────────────────────────
 
-void VulkanDevice::requestFeatures(DeviceFeatureChain& chain) const {
+void VulkanDevice::RequestFeatures(DeviceFeatureChain& chain) const {
     // Query device support first so we only enable what exists.
     vkGetPhysicalDeviceFeatures2(m_PhysicalDevice, &chain.core);
 
@@ -329,7 +329,7 @@ void VulkanDevice::requestFeatures(DeviceFeatureChain& chain) const {
 }
 
 // ─── logEnabledFeatures ──────────────────────────────────────────────────────
-void VulkanDevice::logEnabledFeatures(const DeviceFeatureChain& chain) const {
+void VulkanDevice::LogEnabledFeatures(const DeviceFeatureChain& chain) const {
     const auto& f        = chain.core.features;
     const auto& f12      = chain.vk12;
     const auto& f13      = chain.vk13;
@@ -380,7 +380,7 @@ void VulkanDevice::logEnabledFeatures(const DeviceFeatureChain& chain) const {
 
 // ─── logEnabledExtensions ────────────────────────────────────────────────────
 
-void VulkanDevice::logEnabledExtensions(const std::vector<const char*>& extensions) const {
+void VulkanDevice::LogEnabledExtensions(const std::vector<const char*>& extensions) const {
     LIGHTVK_INFO("Enabled Extensions ({}):", extensions.size());
     for (const char* ext : extensions)
         LIGHTVK_INFO("  - {}", ext);
@@ -388,7 +388,7 @@ void VulkanDevice::logEnabledExtensions(const std::vector<const char*>& extensio
 
 // ─── createLogicalDevice ─────────────────────────────────────────────────────
 
-void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredExtensions,
+void VulkanDevice::CreateLogicalDevice(const std::vector<const char*>& requiredExtensions,
                                        const std::vector<const char*>& requiredLayers) {
     uint32_t count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, nullptr);
@@ -438,7 +438,7 @@ void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredE
     std::vector<VkExtensionProperties> availableExtensions(availableCount);
     vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &availableCount, availableExtensions.data());
 
-    if (!validateExtensions(requiredExtensions, availableExtensions))
+    if (!ValidateExtensions(requiredExtensions, availableExtensions))
         throw std::runtime_error("One or more required Vulkan device extensions are not supported.");
 
     // ── Build queue create infos ──────────────────────────────────────────────
@@ -456,7 +456,7 @@ void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredE
 
     // ── Request features ──────────────────────────────────────────────────────
     DeviceFeatureChain chain;
-    requestFeatures(chain);
+    RequestFeatures(chain);
 
     // ── Create logical device ─────────────────────────────────────────────────
     VkDeviceCreateInfo info{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
@@ -476,13 +476,13 @@ void VulkanDevice::createLogicalDevice(const std::vector<const char*>& requiredE
     vkGetDeviceQueue(m_Device, m_TransferFamily, 0, &m_TransferQueue);
     vkGetDeviceQueue(m_Device, m_PresentFamily, 0, &m_PresentQueue);
 
-    // logEnabledExtensions(requiredExtensions);
-    // logEnabledFeatures(chain);
-    queryProps();
+    // LogEnabledExtensions(requiredExtensions);
+    // LogEnabledFeatures(chain);
+    QueryProps();
     LIGHTVK_INFO("Logical device created successfully\n");
 }
 
-void VulkanDevice::queryProps() {
+void VulkanDevice::QueryProps() {
 
     m_PhysicalDeviceProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
     m_DescHeapProps.sType       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT;
@@ -518,24 +518,24 @@ VulkanDevice::VulkanDevice(VkInstance                      instance,
 
     std::vector<DeviceInfo> infos;
     for (uint32_t i = 0; i < count; i++) {
-        if (!isDeviceSuitable(devices[i])) {
+        if (!IsDeviceSuitable(devices[i])) {
             LIGHTVK_WARN("Device [{}] skipped (missing graphics or present support)", i);
             continue;
         }
 
-        auto info  = gatherDeviceInfo(devices[i]);
+        auto info  = GatherDeviceInfo(devices[i]);
         info.index = static_cast<int>(i);
-        info.score = scoreDevice(info);
-        // logDeviceInfo(i, info);
+        info.score = ScoreDevice(info);
+        // LogDeviceInfo(i, info);
         infos.push_back(info);
     }
 
     if (infos.empty())
         throw std::runtime_error("No suitable Vulkan physical device found.");
 
-    m_PhysicalDevice = devices[selectDevice(infos)];
+    m_PhysicalDevice = devices[SelectDevice(infos)];
 
-    createLogicalDevice(requiredExtensions, requiredLayers);
+    CreateLogicalDevice(requiredExtensions, requiredLayers);
 }
 
 VulkanDevice::~VulkanDevice() {

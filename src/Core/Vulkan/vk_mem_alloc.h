@@ -3199,7 +3199,7 @@ namespace {
 	}
 #else
 	void vma_aligned_free(void* VMA_NULLABLE ptr) {
-		free(ptr);
+		Free(ptr);
 	}
 #endif
 } // namespace

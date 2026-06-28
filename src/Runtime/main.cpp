@@ -15,8 +15,7 @@ public:
     }
     
     void OnUpdate(uint32_t currentFrame) override {
-        // Hardcoded Game Logic
-        auto view = world_.registry().view<Lgt::Component::Transform>();
+        auto view = world_.Registry().view<Lgt::Component::Transform>();
         for (auto entity : view) {
             auto& transform = view.get<Lgt::Component::Transform>(entity);
             // Simulate game logic (e.g., spinning objects)

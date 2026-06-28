@@ -9,7 +9,7 @@
 
 namespace Lgt::Vulkan {
 
-struct Contex {
+struct Context {
 
     VulkanSurface*                 surface   = nullptr;
     VulkanInstance*                instance  = nullptr;
@@ -18,9 +18,9 @@ struct Contex {
     VulkanLoadTimeStagingUploader* uploader  = nullptr;
 
     void                           Init(GLFWwindow* window);
-    void                           Shoutdown();
+    void                           Shutdown();
 };
 
-extern LIGHTVK_API Contex g_Contex;
+extern LIGHTVK_API Context g_Context;
 
 } // namespace Lgt::Vulkan

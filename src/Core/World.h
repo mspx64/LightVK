@@ -17,13 +17,13 @@ public:
     explicit World();
     ~World() = default;
 
-    Entity createEntity(std::string name = "Entity");
+    Entity CreateEntity(std::string name = "Entity");
     void   destroyEntity(Entity entity);
     void   update(float deltaTime);
 
-    entt::registry&       registry() { return m_Registry; }
-    const entt::registry& registry() const { return m_Registry; }
-    Gpu::DrawList         drawList();
+    entt::registry&       Registry() { return m_Registry; }
+    const entt::registry& Registry() const { return m_Registry; }
+    Gpu::DrawList         DrawList();
 
 private:
     entt::registry m_Registry;

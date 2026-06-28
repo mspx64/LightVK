@@ -56,7 +56,7 @@ public:
         _My_key = GenerateKey();
     }
 
-    Handle allocate(ResourceType resource) {
+    Handle Allocate(ResourceType resource) {
         ValueType index;
         Handle    handle;
 
@@ -77,8 +77,8 @@ public:
         return handle;
     }
 
-    void free(Handle& handle) {
-        LIGHTVK_ASSERT_MSG(handle.isValid(), "ResourcePool::free: trying to free an invalid handle");
+    void Free(Handle& handle) {
+        LIGHTVK_ASSERT_MSG(handle.IsValid(), "ResourcePool::free: trying to free an invalid handle");
 
         uint64_t raw   = Decrypt(handle.id);
         auto     index = static_cast<ValueType>(raw & 0xFFFFFFFF);
@@ -92,8 +92,8 @@ public:
         _My_freelist.push_back(index);
     }
 
-    ResourceType* get(const Handle& handle) {
-        if (!handle.isValid()) {
+    ResourceType* Get(const Handle& handle) {
+        if (!handle.IsValid()) {
             LIGHTVK_WARN("ResourcePool::get : invalid handle");
             return nullptr;
         }
@@ -136,7 +136,7 @@ public:
     }
 
     bool IsAlive(const Handle& handle) const {
-        if (!handle.isValid())
+        if (!handle.IsValid())
             return false;
 
         uint64_t raw   = Decrypt(handle.id);
@@ -146,7 +146,7 @@ public:
         return index < _My_resource.size() && _My_generation[index] == gen;
     }
 
-    void clear() {
+    void Clear() {
         _My_resource.clear();
         _My_generation.clear();
         _My_freelist.clear();

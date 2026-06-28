@@ -1,9 +1,9 @@
-#include "Contex.h"
+#include "Context.h"
 #include "Core/Logger.h"
 
 namespace Lgt::Vulkan {
-Contex g_Contex;
-void   Contex::Init(GLFWwindow* window) {
+Context g_Context;
+void   Context::Init(GLFWwindow* window) {
     VK_CHECK(volkInitialize());
 
     // TODO modify this to use the RAII
@@ -19,14 +19,14 @@ void   Contex::Init(GLFWwindow* window) {
 
     // create vulkan device after the loding instance with volk
     device = new VulkanDevice(instance->Handle(), surface->Handle(), DEVICE_EXTENSIONS, VALIDATION_LAYERS);
-    volkLoadDevice(device->logical());
+    volkLoadDevice(device->Logical());
 
-    allocator = new VulkanAllocator(instance->Handle(), device->physical(), device->logical());
+    allocator = new VulkanAllocator(instance->Handle(), device->Physical(), device->Logical());
 
     uploader = new VulkanLoadTimeStagingUploader();
 }
-void Contex::Shoutdown() {
-    vkDeviceWaitIdle(g_Contex.device->logical());
+void Context::Shutdown() {
+    vkDeviceWaitIdle(g_Context.device->Logical());
     
     delete uploader;
     delete allocator;

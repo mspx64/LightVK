@@ -14,7 +14,6 @@ target_link_libraries(LightVK_Runtime
         LightVKCore
 )
 
-# ── Post-build: mirror shaders next to the binary ─────────────────
 add_custom_command(TARGET LightVK_Runtime POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/shaders"
@@ -22,7 +21,6 @@ add_custom_command(TARGET LightVK_Runtime POST_BUILD
     COMMENT "Copying shaders → runtime output"
 )
 
-# ── Post-build: mirror assets next to the binary ──────────────────
 if(EXISTS "${CMAKE_SOURCE_DIR}/assets")
     add_custom_command(TARGET LightVK_Runtime POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

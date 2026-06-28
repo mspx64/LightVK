@@ -91,14 +91,14 @@ public:
     VulkanLoadTimeStagingUploader& operator=(VulkanLoadTimeStagingUploader&&)      = delete;
 
     // Queue a buffer upload — data is copied to CPU-side staging immediately
-    void uploadBuffer(VkBuffer dst, const void* data, uint32_t size, uint32_t dstOffset = 0);
+    void UploadBuffer(VkBuffer dst, const void* data, uint32_t size, uint32_t dstOffset = 0);
 
     // Queue a texture upload — data is copied to CPU-side staging immediately
     void uploadTexture(VkImage dst, const void* data, uint32_t size, const TextureCopy& region);
 
     // Execute all queued uploads in a single GPU submission, then free staging memory.
     // Call once after all assets are queued. Safe to call on empty queue (no-op).
-    void flush();
+    void Flush();
 
     // Returns total bytes queued so far (before flush)
     uint32_t pendingBytes() const { return m_TotalSize; }

@@ -32,7 +32,7 @@ public:
     void         destroyImage(VkImage image, VmaAllocation allocation);
     void*        map(VmaAllocation allocation);
     void         unmap(VmaAllocation allocation);
-    VmaAllocator handle() const { return m_Allocator; }
+    VmaAllocator Handle() const { return m_Allocator; }
 
 private:
     VmaAllocator m_Allocator = VK_NULL_HANDLE;

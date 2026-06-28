@@ -1,7 +1,7 @@
 #include "Core/Application.h"
 #include "Editor/Assets.h"
-#include "Core/Vulkan/Contex.h"
-#include "Core/Gpu/Contex.h"
+#include "Core/Vulkan/Context.h"
+#include "Core/Gpu/Context.h"
 #include "Core/Gpu/Resource.h"
 #include "Core/SceneSerializer.h"
 #include "Core/Components.h"
@@ -17,8 +17,8 @@ public:
         drawList = BuildDrawList(model);
 
         // Test scene setup
-        auto e = world_.createEntity("TestSphere");
-        e.add<Lgt::Component::Transform>();
+        auto e = world_.CreateEntity("TestSphere");
+        e.Add<Lgt::Component::Transform>();
 
         // Save scene
         Lgt::SceneSerializer serializer(&world_);
@@ -26,7 +26,7 @@ public:
     }
     
     void OnUpdate(uint32_t currentFrame) override {
-        Lgt::Gpu::g_Contex.renderer->Render(&drawList, currentFrame);
+        Lgt::Gpu::g_Context.renderer->Render(&drawList, currentFrame);
     }
 
     Lgt::Gpu::DrawList BuildDrawList(const Lgt::Assets::Model& model) {
@@ -39,15 +39,15 @@ public:
             auto vbo = Lgt::Gpu::CreateSSBO(model.meshes[i].vertices.size() * sizeof(Lgt::Gpu::Vertex));
             auto ibo = Lgt::Gpu::CreateSSBO(model.meshes[i].indices.size() * sizeof(uint32_t));
 
-            Lgt::Vulkan::g_Contex.uploader->uploadBuffer(Lgt::Gpu::g_Buffers.get(vbo)->buffer,
+            Lgt::Vulkan::g_Context.uploader->UploadBuffer(Lgt::Gpu::g_Buffers.Get(vbo)->buffer,
                                                     model.meshes[i].vertices.data(),
                                                     model.meshes[i].vertices.size() * sizeof(Lgt::Gpu::Vertex));
 
-            Lgt::Vulkan::g_Contex.uploader->uploadBuffer(
-                Lgt::Gpu::g_Buffers.get(ibo)->buffer, model.meshes[i].indices.data(), model.meshes[i].indices.size() * sizeof(uint32_t));
+            Lgt::Vulkan::g_Context.uploader->UploadBuffer(
+                Lgt::Gpu::g_Buffers.Get(ibo)->buffer, model.meshes[i].indices.data(), model.meshes[i].indices.size() * sizeof(uint32_t));
 
-            commands[i].vertexBufferIndex = Lgt::Gpu::g_Contex.resourceHeap->AllocateSSBO(vbo);
-            commands[i].indexBufferIndex  = Lgt::Gpu::g_Contex.resourceHeap->AllocateSSBO(ibo);
+            commands[i].vertexBufferIndex = Lgt::Gpu::g_Context.resourceHeap->AllocateSSBO(vbo);
+            commands[i].indexBufferIndex  = Lgt::Gpu::g_Context.resourceHeap->AllocateSSBO(ibo);
             indexCounts[i]                = model.meshes[i].indices.size();
         }
 
@@ -55,7 +55,7 @@ public:
         drawlist.commands    = commands;
         drawlist.count       = model.meshes.size();
         drawlist.indexCounts = indexCounts;
-        Lgt::Vulkan::g_Contex.uploader->flush();
+        Lgt::Vulkan::g_Context.uploader->Flush();
 
         return drawlist;
     }

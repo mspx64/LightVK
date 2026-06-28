@@ -2,8 +2,8 @@
 #include <stdexcept>
 #include <array>
 #include "Core/Logger.h"
-#include "Contex.h"
-#include <Core/Vulkan/Contex.h>
+#include "Context.h"
+#include <Core/Vulkan/Context.h>
 
 #include "Renderer.h"
 
@@ -14,12 +14,12 @@ void Renderer::Init(GLFWwindow* window) {
     glfwSetWindowUserPointer(window_, this);
     glfwSetFramebufferSizeCallback(window_, framebufferResizeCallback);
 
-    swapchain_.Init(Lgt::Vulkan::g_Contex.device->physical(),
-                    Lgt::Vulkan::g_Contex.device->logical(),
-                    Lgt::Vulkan::g_Contex.surface->Handle(),
+    swapchain_.Init(Lgt::Vulkan::g_Context.device->Physical(),
+                    Lgt::Vulkan::g_Context.device->Logical(),
+                    Lgt::Vulkan::g_Context.surface->Handle(),
                     window_,
-                    Lgt::Vulkan::g_Contex.device->graphicsFamily(),
-                    Lgt::Vulkan::g_Contex.device->presentFamily());
+                    Lgt::Vulkan::g_Context.device->GraphicsFamily(),
+                    Lgt::Vulkan::g_Context.device->PresentFamily());
 
     createCommandPool();
     createCommandBuffers();
@@ -30,17 +30,17 @@ void Renderer::Init(GLFWwindow* window) {
 }
 
 void Renderer::ShutDown() {
-    vkDeviceWaitIdle(Lgt::Vulkan::g_Contex.device->logical());
+    vkDeviceWaitIdle(Lgt::Vulkan::g_Context.device->Logical());
 
-    swapchain_.Cleanup(Lgt::Vulkan::g_Contex.device->logical());
-    vkDestroyPipeline(Lgt::Vulkan::g_Contex.device->logical(), TraingleGfxPipeline_, nullptr);
+    swapchain_.Cleanup(Lgt::Vulkan::g_Context.device->Logical());
+    vkDestroyPipeline(Lgt::Vulkan::g_Context.device->Logical(), TraingleGfxPipeline_, nullptr);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        vkDestroySemaphore(Lgt::Vulkan::g_Contex.device->logical(), imageAvailableSems_[i], nullptr);
-        vkDestroySemaphore(Lgt::Vulkan::g_Contex.device->logical(), renderFinishedSems_[i], nullptr);
-        vkDestroyFence(Lgt::Vulkan::g_Contex.device->logical(), inFlightFences_[i], nullptr);
+        vkDestroySemaphore(Lgt::Vulkan::g_Context.device->Logical(), imageAvailableSems_[i], nullptr);
+        vkDestroySemaphore(Lgt::Vulkan::g_Context.device->Logical(), renderFinishedSems_[i], nullptr);
+        vkDestroyFence(Lgt::Vulkan::g_Context.device->Logical(), inFlightFences_[i], nullptr);
     }
-    vkDestroyCommandPool(Lgt::Vulkan::g_Contex.device->logical(), commandPool_, nullptr);
+    vkDestroyCommandPool(Lgt::Vulkan::g_Context.device->Logical(), commandPool_, nullptr);
 }
 
 void Renderer::recreateSwapchain() {
@@ -50,7 +50,7 @@ void Renderer::recreateSwapchain() {
         glfwGetFramebufferSize(window_, &w, &h);
         glfwWaitEvents();
     }
-    vkDeviceWaitIdle(Lgt::Vulkan::g_Contex.device->logical());
+    vkDeviceWaitIdle(Lgt::Vulkan::g_Context.device->Logical());
     swapchain_.Recreate(window_);
 }
 
@@ -79,7 +79,7 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, TraingleGfxPipeline_);
 
     // TODO-------------------------------------------
-    auto* ubo = g_Buffers.get(frameUBO_[currentFrame_]);
+    auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
     LGT_ASSERT(ubo);
     FrameUBO ubodata{glm::vec3{1.0, 1.0, 1.0}};
     memcpy(ubo->mapped, &ubodata, sizeof(FrameUBO));
@@ -108,9 +108,9 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
 void Renderer::BeginFrame(uint32_t frameindex) {
     currentFrame_ = frameindex;
 
-    vkWaitForFences(Vulkan::g_Contex.device->logical(), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
 
-    VkResult result = vkAcquireNextImageKHR(Vulkan::g_Contex.device->logical(),
+    VkResult result = vkAcquireNextImageKHR(Vulkan::g_Context.device->Logical(),
                                             swapchain_.Handle(), // <-- .Handle()
                                             UINT64_MAX,
                                             imageAvailableSems_[currentFrame_],
@@ -124,31 +124,31 @@ void Renderer::BeginFrame(uint32_t frameindex) {
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         throw std::runtime_error("vkAcquireNextImageKHR failed");
 
-    vkResetFences(Lgt::Vulkan::g_Contex.device->logical(), 1, &inFlightFences_[currentFrame_]);
+    vkResetFences(Lgt::Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_]);
 
     // resource heap bind info
     VkDeviceAddressRangeEXT resourceDeviceAdderRange{};
-    resourceDeviceAdderRange.size    = g_Contex.resourceHeap->Size();
-    resourceDeviceAdderRange.address = g_Contex.resourceHeap->BufferAddress();
+    resourceDeviceAdderRange.size    = g_Context.resourceHeap->Size();
+    resourceDeviceAdderRange.address = g_Context.resourceHeap->BufferAddress();
 
     VkBindHeapInfoEXT resourceBind{};
     resourceBind.sType     = VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT;
     resourceBind.heapRange = resourceDeviceAdderRange;
     resourceBind.reservedRangeOffset =
-        g_Contex.resourceHeap->Size() - Vulkan::g_Contex.device->DescriptorHeapProperties().minResourceHeapReservedRange;
-    resourceBind.reservedRangeSize = Lgt::Vulkan::g_Contex.device->DescriptorHeapProperties().minResourceHeapReservedRange;
+        g_Context.resourceHeap->Size() - Vulkan::g_Context.device->DescriptorHeapProperties().minResourceHeapReservedRange;
+    resourceBind.reservedRangeSize = Lgt::Vulkan::g_Context.device->DescriptorHeapProperties().minResourceHeapReservedRange;
 
     // smapler heap bind info
     VkDeviceAddressRangeEXT samplerDeviceAdderRange{};
-    samplerDeviceAdderRange.size    = g_Contex.samplerHeap->Size();
-    samplerDeviceAdderRange.address = g_Contex.samplerHeap->BufferAddress();
+    samplerDeviceAdderRange.size    = g_Context.samplerHeap->Size();
+    samplerDeviceAdderRange.address = g_Context.samplerHeap->BufferAddress();
 
     VkBindHeapInfoEXT samplerBind{};
     samplerBind.sType     = VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT;
     samplerBind.heapRange = samplerDeviceAdderRange;
     samplerBind.reservedRangeOffset =
-        g_Contex.samplerHeap->Size() - Lgt::Vulkan::g_Contex.device->DescriptorHeapProperties().minSamplerHeapReservedRange;
-    samplerBind.reservedRangeSize = Lgt::Vulkan::g_Contex.device->DescriptorHeapProperties().minSamplerHeapReservedRange;
+        g_Context.samplerHeap->Size() - Lgt::Vulkan::g_Context.device->DescriptorHeapProperties().minSamplerHeapReservedRange;
+    samplerBind.reservedRangeSize = Lgt::Vulkan::g_Context.device->DescriptorHeapProperties().minSamplerHeapReservedRange;
 
     VkCommandBuffer cmd = commandBuffers_[currentFrame_];
     vkResetCommandBuffer(cmd, 0);
@@ -247,7 +247,7 @@ void Renderer::EndFrame() {
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signalSems;
 
-    if (vkQueueSubmit(Lgt::Vulkan::g_Contex.device->graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]) !=
+    if (vkQueueSubmit(Lgt::Vulkan::g_Context.device->GraphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]) !=
         VK_SUCCESS)
         throw std::runtime_error("vkQueueSubmit failed");
 
@@ -260,7 +260,7 @@ void Renderer::EndFrame() {
     presentInfo.pSwapchains        = swapchains;
     presentInfo.pImageIndices      = &currentImageIndex_;
 
-    auto result = vkQueuePresentKHR(Lgt::Vulkan::g_Contex.device->presentQueue(), &presentInfo);
+    auto result = vkQueuePresentKHR(Lgt::Vulkan::g_Context.device->PresentQueue(), &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_) {
         framebufferResized_ = false;
         recreateSwapchain();
@@ -275,8 +275,8 @@ void Renderer::createTestResources() {
     auto vertCode = readFile("shaders/shader.vert.spv");
     auto fragCode = readFile("shaders/shader.frag.spv");
 
-    VkShaderModule vertModule = createShaderModule(Lgt::Vulkan::g_Contex.device, vertCode);
-    VkShaderModule fragModule = createShaderModule(Lgt::Vulkan::g_Contex.device, fragCode);
+    VkShaderModule vertModule = createShaderModule(Lgt::Vulkan::g_Context.device, vertCode);
+    VkShaderModule fragModule = createShaderModule(Lgt::Vulkan::g_Context.device, fragCode);
 
     VkPipelineShaderStageCreateInfo vertStage{};
     vertStage.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -363,19 +363,19 @@ void Renderer::createTestResources() {
     pipelineInfo.renderPass = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(
-            Lgt::Vulkan::g_Contex.device->logical(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &TraingleGfxPipeline_) !=
+            Lgt::Vulkan::g_Context.device->Logical(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &TraingleGfxPipeline_) !=
         VK_SUCCESS)
         throw std::runtime_error("vkCreateGraphicsPipelines failed");
 
-    vkDestroyShaderModule(Lgt::Vulkan::g_Contex.device->logical(), fragModule, nullptr);
-    vkDestroyShaderModule(Lgt::Vulkan::g_Contex.device->logical(), vertModule, nullptr);
+    vkDestroyShaderModule(Lgt::Vulkan::g_Context.device->Logical(), fragModule, nullptr);
+    vkDestroyShaderModule(Lgt::Vulkan::g_Context.device->Logical(), vertModule, nullptr);
 
     // vertex buffer -- ssbo
 
     float positions[6] = {0.0, -0.5, 0.5, 0.5, -0.5, 0.5};
     vertSSBO_          = CreateSSBO(sizeof(positions));
-    auto* dstgpubuffer = g_Buffers.get(vertSSBO_);
-    vertGpuIndex       = g_Contex.resourceHeap->AllocateSSBO(vertSSBO_);
+    auto* dstgpubuffer = g_Buffers.Get(vertSSBO_);
+    vertGpuIndex       = g_Context.resourceHeap->AllocateSSBO(vertSSBO_);
 
     Buffer srcBuffer{};
 
@@ -383,11 +383,11 @@ void Renderer::createTestResources() {
     bufferci.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferci.size        = 24;
     bufferci.usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    bufferci.sharingMode = Vulkan::g_Contex.device->graphicsFamily() == Vulkan::g_Contex.device->transferFamily()
+    bufferci.sharingMode = Vulkan::g_Context.device->GraphicsFamily() == Vulkan::g_Context.device->TransferFamily()
                                ? VK_SHARING_MODE_CONCURRENT
                                : VK_SHARING_MODE_EXCLUSIVE;
 
-    uint32_t queuefamilyindices[]  = {Vulkan::g_Contex.device->graphicsFamily(), Vulkan::g_Contex.device->transferFamily()};
+    uint32_t queuefamilyindices[]  = {Vulkan::g_Context.device->GraphicsFamily(), Vulkan::g_Context.device->TransferFamily()};
     bufferci.queueFamilyIndexCount = 2;
     bufferci.pQueueFamilyIndices   = queuefamilyindices;
 
@@ -395,19 +395,19 @@ void Renderer::createTestResources() {
     allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 
-    LGT_ASSERT(Vulkan::g_Contex.allocator->createBuffer(bufferci, allocInfo, srcBuffer.buffer, srcBuffer.allocation))
+    LGT_ASSERT(Vulkan::g_Context.allocator->createBuffer(bufferci, allocInfo, srcBuffer.buffer, srcBuffer.allocation))
 
-    void* ptr = Vulkan::g_Contex.allocator->map(srcBuffer.allocation);
+    void* ptr = Vulkan::g_Context.allocator->map(srcBuffer.allocation);
     memcpy(ptr, positions, 24);
-    Vulkan::g_Contex.allocator->unmap(srcBuffer.allocation);
+    Vulkan::g_Context.allocator->unmap(srcBuffer.allocation);
 
     VkBufferCopy buffercpy{};
     buffercpy.dstOffset = 0;
     buffercpy.srcOffset = 0;
     buffercpy.size      = 24;
 
-    vkWaitForFences(Vulkan::g_Contex.device->logical(), 1, &inFlightFences_[0], VK_TRUE, UINT64_MAX);
-    vkResetFences(Lgt::Vulkan::g_Contex.device->logical(), 1, &inFlightFences_[currentFrame_]);
+    vkWaitForFences(Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[0], VK_TRUE, UINT64_MAX);
+    vkResetFences(Lgt::Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_]);
 
     VkCommandBufferBeginInfo cmdBeginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
     vkBeginCommandBuffer(commandBuffers_[0], &cmdBeginInfo);
@@ -419,11 +419,11 @@ void Renderer::createTestResources() {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &commandBuffers_[0];
 
-    if (vkQueueSubmit(Lgt::Vulkan::g_Contex.device->graphicsQueue(), 1, &submitInfo, inFlightFences_[0]) != VK_SUCCESS)
+    if (vkQueueSubmit(Lgt::Vulkan::g_Context.device->GraphicsQueue(), 1, &submitInfo, inFlightFences_[0]) != VK_SUCCESS)
         throw std::runtime_error("vkQueueSubmit failed");
 
-    vkQueueWaitIdle(Lgt::Vulkan::g_Contex.device->graphicsQueue());
-    Vulkan::g_Contex.allocator->destroyBuffer(srcBuffer.buffer, srcBuffer.allocation);
+    vkQueueWaitIdle(Lgt::Vulkan::g_Context.device->GraphicsQueue());
+    Vulkan::g_Context.allocator->destroyBuffer(srcBuffer.buffer, srcBuffer.allocation);
 }
 
 void Renderer::framebufferResizeCallback(GLFWwindow* w, int /*width*/, int /*height*/) {
@@ -435,9 +435,9 @@ void Renderer::createCommandPool() {
     VkCommandPoolCreateInfo ci{};
     ci.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     ci.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    ci.queueFamilyIndex = Lgt::Vulkan::g_Contex.device->graphicsFamily();
+    ci.queueFamilyIndex = Lgt::Vulkan::g_Context.device->GraphicsFamily();
 
-    if (vkCreateCommandPool(Lgt::Vulkan::g_Contex.device->logical(), &ci, nullptr, &commandPool_) != VK_SUCCESS)
+    if (vkCreateCommandPool(Lgt::Vulkan::g_Context.device->Logical(), &ci, nullptr, &commandPool_) != VK_SUCCESS)
         throw std::runtime_error("vkCreateCommandPool failed");
 }
 
@@ -450,7 +450,7 @@ void Renderer::createCommandBuffers() {
     allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
-    if (vkAllocateCommandBuffers(Lgt::Vulkan::g_Contex.device->logical(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(Lgt::Vulkan::g_Context.device->Logical(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS)
         throw std::runtime_error("vkAllocateCommandBuffers failed");
 }
 
@@ -464,9 +464,9 @@ void Renderer::createSyncObjects() {
     fenceCI.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        if (vkCreateSemaphore(Lgt::Vulkan::g_Contex.device->logical(), &semCI, nullptr, &imageAvailableSems_[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(Lgt::Vulkan::g_Contex.device->logical(), &semCI, nullptr, &renderFinishedSems_[i]) != VK_SUCCESS ||
-            vkCreateFence(Lgt::Vulkan::g_Contex.device->logical(), &fenceCI, nullptr, &inFlightFences_[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(Lgt::Vulkan::g_Context.device->Logical(), &semCI, nullptr, &imageAvailableSems_[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(Lgt::Vulkan::g_Context.device->Logical(), &semCI, nullptr, &renderFinishedSems_[i]) != VK_SUCCESS ||
+            vkCreateFence(Lgt::Vulkan::g_Context.device->Logical(), &fenceCI, nullptr, &inFlightFences_[i]) != VK_SUCCESS)
             throw std::runtime_error("Failed to create sync objects");
     }
 }
@@ -474,7 +474,7 @@ void Renderer::createSyncObjects() {
 void Renderer::createUBOS() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         auto bufferHandle = CreateUBO(sizeof(FrameUBO));
-        g_Contex.resourceHeap->AllocateUBO(bufferHandle);
+        g_Context.resourceHeap->AllocateUBO(bufferHandle);
         frameUBO_.push_back(std::move(bufferHandle));
     }
 }

@@ -13,10 +13,10 @@ struct Context {
     DescriptorHeap* samplerHeap  = nullptr;
     
     void Init(GLFWwindow* window);  
-    void Shoutdown();
+    void Shutdown();
 };
 
-extern LIGHTVK_API Context                              g_Contex;
+extern LIGHTVK_API Context                              g_Context;
 extern LIGHTVK_API ResourcePool<Texture, TextureHandle> g_Textures;
 extern LIGHTVK_API ResourcePool<Buffer, BufferHandle>   g_Buffers;
 

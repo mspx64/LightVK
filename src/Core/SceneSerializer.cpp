@@ -20,7 +20,7 @@ static void SerializeComponentArray(std::ofstream& out, entt::registry& reg) {
         entt::entity e = entity;
         out.write(reinterpret_cast<const char*>(&e), sizeof(entt::entity));
         if constexpr (!std::is_empty_v<T>) {
-            T& component = view.get<T>(entity);
+            T& component = view.template get<T>(entity);
             out.write(reinterpret_cast<const char*>(&component), sizeof(T));
         }
     }
@@ -56,7 +56,7 @@ bool SceneSerializer::SerializeBinary(const std::filesystem::path& filepath) {
         return false;
     }
 
-    entt::registry& reg = m_World->registry();
+    entt::registry& reg = m_World->Registry();
 
     // Serialize Tags (special case for std::string)
     auto tagView = reg.view<Component::Tag>();
@@ -90,7 +90,7 @@ bool SceneSerializer::DeserializeBinary(const std::filesystem::path& filepath) {
         return false;
     }
 
-    entt::registry& reg = m_World->registry();
+    entt::registry& reg = m_World->Registry();
     reg.clear();
 
     // Deserialize Tags

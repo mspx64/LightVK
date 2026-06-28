@@ -21,7 +21,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/Bin")
 
 file(TO_CMAKE_PATH "$ENV{VULKAN_SDK}" VULKAN_SDK_PATH)
 
-# ── Packages ──────────────────────────────────────────────────────
 find_package(Vulkan   REQUIRED)
 find_package(glfw3    CONFIG REQUIRED)
 find_package(glm      CONFIG REQUIRED)
@@ -30,7 +29,6 @@ find_package(fastgltf CONFIG REQUIRED)
 find_package(EnTT     CONFIG REQUIRED)
 find_package(imgui    CONFIG REQUIRED)
 
-# ── Shader compilation ────────────────────────────────────────────
 find_program(GLSLC glslc
     HINTS "$ENV{VULKAN_SDK}/Bin"
     NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH
@@ -63,11 +61,9 @@ endforeach()
 
 add_custom_target(compile_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-# ── Volk — shared between Core and Editor ─────────────────────────
 set(VOLK_SOURCE "${VULKAN_SDK_PATH}/Include/Volk/volk.c"
     CACHE STRING "Volk loader source path")
 
-# ── Sub-projects ──────────────────────────────────────────────────
-add_subdirectory(src/Core)    # → static lib   LightVKCore
-add_subdirectory(src/Editor)  # → executable   LightVK_Editor
-add_subdirectory(src/Runtime) # → executable   LightVK_Runtime
+add_subdirectory(src/Core)   
+add_subdirectory(src/Editor) 
+add_subdirectory(src/Runtime)

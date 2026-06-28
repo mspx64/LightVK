@@ -1,4 +1,4 @@
-#include "Contex.h"
+#include "Context.h"
 #include "Core/Logger.h"
 #include "Uploader.h"
 
@@ -6,8 +6,8 @@ namespace Lgt::Vulkan {
 
 VulkanLoadTimeStagingUploader::VulkanLoadTimeStagingUploader() {
 
-    auto     device         = g_Contex.device->logical();
-    uint32_t transferFamily = g_Contex.device->transferFamily();
+    auto     device         = g_Context.device->Logical();
+    uint32_t transferFamily = g_Context.device->TransferFamily();
 
     // Command pool on transfer queue
     VkCommandPoolCreateInfo poolInfo{};
@@ -16,7 +16,7 @@ VulkanLoadTimeStagingUploader::VulkanLoadTimeStagingUploader() {
     poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     VK_CHECK(vkCreateCommandPool(device, &poolInfo, nullptr, &m_Pool));
 
-    // Single command buffer — reused between flush() calls
+    // Single command buffer — reused between Flush() calls
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool        = m_Pool;
@@ -24,14 +24,14 @@ VulkanLoadTimeStagingUploader::VulkanLoadTimeStagingUploader() {
     allocInfo.commandBufferCount = 1;
     VK_CHECK(vkAllocateCommandBuffers(device, &allocInfo, &m_Cmd));
 
-    // Fence starts unsignaled — flush() submits then waits on it
+    // Fence starts unsignaled — Flush() submits then waits on it
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &m_Fence));
 }
 
 VulkanLoadTimeStagingUploader::~VulkanLoadTimeStagingUploader() {
-    auto device = g_Contex.device->logical();
+    auto device = g_Context.device->Logical();
 
     if (m_Fence != VK_NULL_HANDLE)
         vkDestroyFence(device, m_Fence, nullptr);
@@ -41,7 +41,7 @@ VulkanLoadTimeStagingUploader::~VulkanLoadTimeStagingUploader() {
     // m_Cmd is owned by m_Pool, destroyed implicitly
 }
 
-void VulkanLoadTimeStagingUploader::uploadBuffer(VkBuffer dst, const void* data, uint32_t size, uint32_t dstOffset) {
+void VulkanLoadTimeStagingUploader::UploadBuffer(VkBuffer dst, const void* data, uint32_t size, uint32_t dstOffset) {
 
     LGT_ASSERT_MSG(dst != VK_NULL_HANDLE, "[LoadUploader] dst buffer is null");
     LGT_ASSERT_MSG(data, "[LoadUploader] data pointer is null");
@@ -63,7 +63,7 @@ void VulkanLoadTimeStagingUploader::uploadTexture(VkImage dst, const void* data,
     m_TotalSize += size;
 }
 
-void VulkanLoadTimeStagingUploader::flush() {
+void VulkanLoadTimeStagingUploader::Flush() {
     if (m_BufferUploads.empty() && m_TextureUploads.empty())
         return;
 
@@ -80,7 +80,7 @@ void VulkanLoadTimeStagingUploader::flush() {
     vmaCI.usage = VMA_MEMORY_USAGE_AUTO;
     vmaCI.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-    bool ok = g_Contex.allocator->createBuffer((uint32_t)m_CPUData.size(),
+    bool ok = g_Context.allocator->createBuffer((uint32_t)m_CPUData.size(),
                                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                                VMA_MEMORY_USAGE_AUTO,
                                                vmaCI.flags,
@@ -195,11 +195,11 @@ void VulkanLoadTimeStagingUploader::flush() {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &m_Cmd;
 
-    VK_CHECK(vkQueueSubmit(g_Contex.device->transferQueue(), 1, &submitInfo, m_Fence));
-    VK_CHECK(vkWaitForFences(g_Contex.device->logical(), 1, &m_Fence, VK_TRUE, UINT64_MAX));
-    VK_CHECK(vkResetFences(g_Contex.device->logical(), 1, &m_Fence));
+    VK_CHECK(vkQueueSubmit(g_Context.device->TransferQueue(), 1, &submitInfo, m_Fence));
+    VK_CHECK(vkWaitForFences(g_Context.device->Logical(), 1, &m_Fence, VK_TRUE, UINT64_MAX));
+    VK_CHECK(vkResetFences(g_Context.device->Logical(), 1, &m_Fence));
 
-    g_Contex.allocator->destroyBuffer(stagingBuffer, stagingAlloc);
+    g_Context.allocator->destroyBuffer(stagingBuffer, stagingAlloc);
 
     LIGHTVK_INFO("[LoadUploader] Flush complete -> staging memory freed");
 

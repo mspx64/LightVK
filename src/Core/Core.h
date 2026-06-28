@@ -29,7 +29,7 @@ public:
         : id(key) {}
     Handle() = default;
 
-    bool isValid() const { return id != INVALID; }
+    bool IsValid() const { return id != INVALID; }
 
     // operators
     bool operator==(const Handle& o) const { return id == o.id; }

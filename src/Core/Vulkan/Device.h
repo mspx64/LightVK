@@ -38,34 +38,34 @@ public:
                  const std::vector<const char*>& requiredLayers     = {});
     ~VulkanDevice();
 
-    VkPhysicalDevice                        physical() const { return m_PhysicalDevice; }
-    VkDevice                                logical() const { return m_Device; }
-    VkQueue                                 graphicsQueue() const { return m_GraphicsQueue; }
-    VkQueue                                 computeQueue() const { return m_ComputeQueue; }
-    VkQueue                                 transferQueue() const { return m_TransferQueue; }
-    VkQueue                                 presentQueue() const { return m_PresentQueue; }
-    uint32_t                                graphicsFamily() const { return m_GraphicsFamily; }
-    uint32_t                                computeFamily() const { return m_ComputeFamily; }
-    uint32_t                                transferFamily() const { return m_TransferFamily; }
-    uint32_t                                presentFamily() const { return m_PresentFamily; }
-    const VkPhysicalDeviceLimits&           limits() const { return m_PhysicalDeviceProps.properties.limits; }
+    VkPhysicalDevice                        Physical() const { return m_PhysicalDevice; }
+    VkDevice                                Logical() const { return m_Device; }
+    VkQueue                                 GraphicsQueue() const { return m_GraphicsQueue; }
+    VkQueue                                 ComputeQueue() const { return m_ComputeQueue; }
+    VkQueue                                 TransferQueue() const { return m_TransferQueue; }
+    VkQueue                                 PresentQueue() const { return m_PresentQueue; }
+    uint32_t                                GraphicsFamily() const { return m_GraphicsFamily; }
+    uint32_t                                ComputeFamily() const { return m_ComputeFamily; }
+    uint32_t                                TransferFamily() const { return m_TransferFamily; }
+    uint32_t                                PresentFamily() const { return m_PresentFamily; }
+    const VkPhysicalDeviceLimits&           Limits() const { return m_PhysicalDeviceProps.properties.limits; }
     const VkPhysicalDeviceProperties&       PhysicalDeviceProperties() const { return m_PhysicalDeviceProps.properties; }
     const VkPhysicalDeviceMemoryProperties& PhysicalDeviceMemoryProperties() const { return m_PhysicalDeviceMemoryProps; }
     const VkPhysicalDeviceDescriptorHeapPropertiesEXT DescriptorHeapProperties() const { return m_DescHeapProps; }
 
 private:
-    DeviceInfo gatherDeviceInfo(VkPhysicalDevice device) const;
-    void       logDeviceInfo(uint32_t index, const DeviceInfo& info) const;
-    uint32_t   scoreDevice(const DeviceInfo& info) const;
-    int        selectDevice(const std::vector<DeviceInfo>& devices) const;
-    bool       isDeviceSuitable(VkPhysicalDevice device) const;
-    void       requestFeatures(DeviceFeatureChain& chain) const;
-    void       logEnabledFeatures(const DeviceFeatureChain& chain) const;
-    void       logEnabledExtensions(const std::vector<const char*>& extensions) const;
+    DeviceInfo GatherDeviceInfo(VkPhysicalDevice device) const;
+    void       LogDeviceInfo(uint32_t index, const DeviceInfo& info) const;
+    uint32_t   ScoreDevice(const DeviceInfo& info) const;
+    int        SelectDevice(const std::vector<DeviceInfo>& devices) const;
+    bool       IsDeviceSuitable(VkPhysicalDevice device) const;
+    void       RequestFeatures(DeviceFeatureChain& chain) const;
+    void       LogEnabledFeatures(const DeviceFeatureChain& chain) const;
+    void       LogEnabledExtensions(const std::vector<const char*>& extensions) const;
 
-    bool validateExtensions(const std::vector<const char*>& requested, const std::vector<VkExtensionProperties>& available) const;
-    void createLogicalDevice(const std::vector<const char*>& requiredExtensions, const std::vector<const char*>& requiredLayers);
-    void queryProps();
+    bool ValidateExtensions(const std::vector<const char*>& requested, const std::vector<VkExtensionProperties>& available) const;
+    void CreateLogicalDevice(const std::vector<const char*>& requiredExtensions, const std::vector<const char*>& requiredLayers);
+    void QueryProps();
 
 private:
     VkInstance       m_Instance       = VK_NULL_HANDLE;

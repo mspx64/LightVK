@@ -2,8 +2,8 @@
 #define VMA_IMPLEMENTATION
 #include "Helpers.h"
 
-#include "Contex.h"
-#include <Core/Gpu/Contex.h>
+#include "Context.h"
+#include <Core/Gpu/Context.h>
 
 uint32_t selectMemoryType(VulkanDevice* device, uint32_t typeFilter, VkMemoryPropertyFlags flags) {
     auto deviceprops = device->PhysicalDeviceMemoryProperties();
@@ -23,7 +23,7 @@ VkShaderModule createShaderModule(VulkanDevice* device, const std::vector<char>&
     ci.pCode    = reinterpret_cast<const uint32_t*>(code.data());
     // ci.flags    = VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT;
     VkShaderModule mod;
-    if (vkCreateShaderModule(device->logical(), &ci, nullptr, &mod) != VK_SUCCESS)
+    if (vkCreateShaderModule(device->Logical(), &ci, nullptr, &mod) != VK_SUCCESS)
         throw std::runtime_error("vkCreateShaderModule failed");
     return mod;
 }
@@ -32,5 +32,5 @@ VkDeviceAddress getBufferDeviceAddress(const VkBuffer& buffer) {
     VkBufferDeviceAddressInfo adderInfo{};
     adderInfo.sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     adderInfo.buffer = buffer;
-    return vkGetBufferDeviceAddress(Lgt::Vulkan::g_Contex.device->logical(), &adderInfo);
+    return vkGetBufferDeviceAddress(Lgt::Vulkan::g_Context.device->Logical(), &adderInfo);
 }
