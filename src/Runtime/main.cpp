@@ -1,7 +1,5 @@
-#include "Core/Application.h"
-#include "Core/SceneSerializer.h"
-#include "Core/Components.h"
-#include "Core/Logger.h"
+#include "Core/LighVk.h"
+#include "Player.h"
 
 class RuntimeApp : public Lgt::Application {
 public:
@@ -12,16 +10,13 @@ public:
         } else {
             LIGHTVK_WARN("Failed to load scene.bin");
         }
+
+        auto player = world_.CreateEntity("Player");
+        player.Add<Game::Components::Player>("Mahesh", 100, true);
+        player.Add<Lgt::Component::Transform>();
     }
-    
-    void OnUpdate(uint32_t currentFrame) override {
-        auto view = world_.Registry().view<Lgt::Component::Transform>();
-        for (auto entity : view) {
-            auto& transform = view.get<Lgt::Component::Transform>(entity);
-            // Simulate game logic (e.g., spinning objects)
-            transform.position.y += 0.01f;
-        }
-    }
+
+    void OnUpdate(uint32_t currentFrame) override {}
 };
 
 int main() {

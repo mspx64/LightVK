@@ -30,8 +30,9 @@ void Application::Init() {
 
 void Application::Run() {
     uint32_t currentFrame = 0;
-
+    
     while (!glfwWindowShouldClose(window_)) {
+        timer_.Tick();
         OnUpdate(currentFrame);
         glfwPollEvents();
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

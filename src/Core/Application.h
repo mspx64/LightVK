@@ -2,6 +2,7 @@
 #include "Gpu/Renderer.h"
 #include "Gpu/Resource.h"
 
+#include "Timer.h"
 #include "Logger.h"
 #include "World.h"
 
@@ -21,5 +22,6 @@ protected:
 
     GLFWwindow* window_ = nullptr;
     World       world_;
+    Timer       timer_;
 };
 } // namespace Lgt
