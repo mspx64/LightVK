@@ -52,12 +52,32 @@ struct Mesh {
     uint32_t vertexBufferIndex = 0;
     uint32_t indexBufferIndex  = 0;
     uint32_t materialIndex     = 0;
+    uint32_t indexCount        = 0; // number of indices (for vkCmdDraw)
 };
 
 struct Camera {
     glm::vec3 up    = {0.f, 0.f, 1.f};
     glm::vec3 front = {0.f, 1.f, 0.f};
     glm::vec3 pos   = {0.f, 0.f, 0.f}; // relative to the parent entity
+
+    float yaw   = -90.f; // degrees
+    float pitch =   0.f;
+
+    float fov       = 60.f;  // vertical FOV in degrees
+    float nearClip  = 0.1f;
+    float farClip   = 500.f;
+    float sensitivity = 0.1f;
+
+    // View matrix from entity world position + camera offset
+    glm::mat4 ViewMatrix(const glm::vec3& entityPos) const {
+        glm::vec3 eye = entityPos + pos;
+        return glm::lookAt(eye, eye + front, up);
+    }
+
+    // Perspective projection matrix
+    glm::mat4 ProjectionMatrix(float aspectRatio) const {
+        return glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
+    }
 };
 
 } // namespace Lgt::Component

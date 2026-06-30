@@ -23,7 +23,7 @@ public:
 
     entt::registry&       Registry() { return m_Registry; }
     const entt::registry& Registry() const { return m_Registry; }
-    Gpu::DrawList         DrawList();
+    Gpu::DrawList         BuildDrawList();
 
 private:
     entt::registry m_Registry;

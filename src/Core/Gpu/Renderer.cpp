@@ -54,18 +54,25 @@ void Renderer::recreateSwapchain() {
     swapchain_.Recreate(window_);
 }
 
-void Renderer::Render(DrawList* list, uint32_t frameIndex) {
+void Renderer::Render(DrawList* list, uint32_t frameIndex, const FrameUBO& frameData) {
 
-    BeginFrame(frameIndex);
-    LGT_ASSERT(list);
+    currentFrame_ = frameIndex;
+
+    if (!BeginFrame())
+        return;
+
+    auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
+    LGT_ASSERT(ubo);
+   // LIGHTVK_TRACE("{} {} {}", frameData.color.r, frameData.color.g, frameData.color.b);
+    memcpy(ubo->mapped, &frameData, sizeof(FrameUBO));
 
     auto cmd = commandBuffers_[currentFrame_];
 
     VkViewport viewport{};
     viewport.x        = 0.0f;
     viewport.y        = 0.0f;
-    viewport.width    = static_cast<float>(swapchain_.Extent().width);  // Or your window width
-    viewport.height   = static_cast<float>(swapchain_.Extent().height); // Or your window height
+    viewport.width    = static_cast<float>(swapchain_.Extent().width);
+    viewport.height   = static_cast<float>(swapchain_.Extent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -78,16 +85,9 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
     vkCmdSetScissor(cmd, 0, 1, &scissor);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, TraingleGfxPipeline_);
 
-    // TODO-------------------------------------------
-    auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
-    LGT_ASSERT(ubo);
-    FrameUBO ubodata{glm::vec3{1.0, 1.0, 1.0}};
-    memcpy(ubo->mapped, &ubodata, sizeof(FrameUBO));
-    //------------------------------------------------
-
     for (int i = 0; i < list->count; ++i) {
 
-        list->commands[i].frameIndex = currentFrame_;
+        list->commands[i].frameIndex = frameUBOIndices_[currentFrame_];
 
         VkHostAddressRangeConstEXT cpuPushDataInfo{};
         cpuPushDataInfo.size    = sizeof(DrawCommand);
@@ -105,13 +105,12 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
     EndFrame();
 }
 
-void Renderer::BeginFrame(uint32_t frameindex) {
-    currentFrame_ = frameindex;
+bool Renderer::BeginFrame() {
 
     vkWaitForFences(Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
 
     VkResult result = vkAcquireNextImageKHR(Vulkan::g_Context.device->Logical(),
-                                            swapchain_.Handle(), // <-- .Handle()
+                                            swapchain_.Handle(),
                                             UINT64_MAX,
                                             imageAvailableSems_[currentFrame_],
                                             VK_NULL_HANDLE,
@@ -119,7 +118,7 @@ void Renderer::BeginFrame(uint32_t frameindex) {
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapchain();
-        return;
+        return false;
     }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         throw std::runtime_error("vkAcquireNextImageKHR failed");
@@ -205,6 +204,7 @@ void Renderer::BeginFrame(uint32_t frameindex) {
     renderingInfo.pColorAttachments    = &colorAttachment;
 
     vkCmdBeginRendering(cmd, &renderingInfo);
+    return true;
 }
 
 void Renderer::EndFrame() {
@@ -369,61 +369,6 @@ void Renderer::createTestResources() {
 
     vkDestroyShaderModule(Lgt::Vulkan::g_Context.device->Logical(), fragModule, nullptr);
     vkDestroyShaderModule(Lgt::Vulkan::g_Context.device->Logical(), vertModule, nullptr);
-
-    // vertex buffer -- ssbo
-
-    float positions[6] = {0.0, -0.5, 0.5, 0.5, -0.5, 0.5};
-    vertSSBO_          = CreateSSBO(sizeof(positions));
-    auto* dstgpubuffer = g_Buffers.Get(vertSSBO_);
-    vertGpuIndex       = g_Context.resourceHeap->AllocateSSBO(vertSSBO_);
-
-    Buffer srcBuffer{};
-
-    VkBufferCreateInfo bufferci{};
-    bufferci.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferci.size        = 24;
-    bufferci.usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    bufferci.sharingMode = Vulkan::g_Context.device->GraphicsFamily() == Vulkan::g_Context.device->TransferFamily()
-                               ? VK_SHARING_MODE_CONCURRENT
-                               : VK_SHARING_MODE_EXCLUSIVE;
-
-    uint32_t queuefamilyindices[]  = {Vulkan::g_Context.device->GraphicsFamily(), Vulkan::g_Context.device->TransferFamily()};
-    bufferci.queueFamilyIndexCount = 2;
-    bufferci.pQueueFamilyIndices   = queuefamilyindices;
-
-    VmaAllocationCreateInfo allocInfo{};
-    allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-    allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-
-    LGT_ASSERT(Vulkan::g_Context.allocator->createBuffer(bufferci, allocInfo, srcBuffer.buffer, srcBuffer.allocation))
-
-    void* ptr = Vulkan::g_Context.allocator->map(srcBuffer.allocation);
-    memcpy(ptr, positions, 24);
-    Vulkan::g_Context.allocator->unmap(srcBuffer.allocation);
-
-    VkBufferCopy buffercpy{};
-    buffercpy.dstOffset = 0;
-    buffercpy.srcOffset = 0;
-    buffercpy.size      = 24;
-
-    vkWaitForFences(Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[0], VK_TRUE, UINT64_MAX);
-    vkResetFences(Lgt::Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_]);
-
-    VkCommandBufferBeginInfo cmdBeginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-    vkBeginCommandBuffer(commandBuffers_[0], &cmdBeginInfo);
-    vkCmdCopyBuffer(commandBuffers_[0], srcBuffer.buffer, dstgpubuffer->buffer, 1, &buffercpy);
-    vkEndCommandBuffer(commandBuffers_[0]);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffers_[0];
-
-    if (vkQueueSubmit(Lgt::Vulkan::g_Context.device->GraphicsQueue(), 1, &submitInfo, inFlightFences_[0]) != VK_SUCCESS)
-        throw std::runtime_error("vkQueueSubmit failed");
-
-    vkQueueWaitIdle(Lgt::Vulkan::g_Context.device->GraphicsQueue());
-    Vulkan::g_Context.allocator->destroyBuffer(srcBuffer.buffer, srcBuffer.allocation);
 }
 
 void Renderer::framebufferResizeCallback(GLFWwindow* w, int /*width*/, int /*height*/) {
@@ -473,8 +418,9 @@ void Renderer::createSyncObjects() {
 
 void Renderer::createUBOS() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        auto bufferHandle = CreateUBO(sizeof(FrameUBO));
-        g_Context.resourceHeap->AllocateUBO(bufferHandle);
+        auto     bufferHandle    = CreateUBO(sizeof(FrameUBO));
+        uint32_t descriptorIndex = g_Context.resourceHeap->AllocateUBO(bufferHandle);
+        frameUBOIndices_.push_back(descriptorIndex);
         frameUBO_.push_back(std::move(bufferHandle));
     }
 }

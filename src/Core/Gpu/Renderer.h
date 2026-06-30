@@ -23,18 +23,21 @@ struct DrawList {
 };
 
 struct FrameUBO {
-    glm::vec3 color;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
+    alignas(16) glm::vec4 color;
 };
 
 class Renderer {
 public:
     void Init(GLFWwindow* window);
     void ShutDown();
-    void Render(DrawList* list, uint32_t frameIndex);
-    void BeginFrame(uint32_t frameIndex);
-    void EndFrame();
+    void Render(DrawList* list, uint32_t frameIndex, const FrameUBO& frameData);
 
 private:
+    bool BeginFrame();
+    void EndFrame();
+
     GLFWwindow* window_ = nullptr;
 
     VulkanSwapchain swapchain_;
@@ -43,6 +46,7 @@ private:
     VkCommandPool                commandPool_ = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers_;
     std::vector<BufferHandle>    frameUBO_;
+    std::vector<uint32_t>        frameUBOIndices_;
 
     // Sync
     std::vector<VkSemaphore> imageAvailableSems_;

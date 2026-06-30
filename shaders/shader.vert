@@ -29,7 +29,9 @@ layout(std430, descriptor_heap) buffer IndexBuffer {
 indexHeaps[];
 
 layout(std140, descriptor_heap) uniform UBO {
-    vec4 color; // Changed to vec4 to prevent CPU/GPU alignment mismatch headaches
+    mat4 view;
+    mat4 proj;
+    vec4 color;
 }
 uniformHeaps[];
 
@@ -37,8 +39,21 @@ layout(location = 0) out vec3 fragColor;
 
 void main() {
     uint vertexIdx = indexHeaps[pushData.indexBufferIndex].indices[gl_VertexIndex];
+    // mat4 view      = uniformHeaps[nonuniformEXT(pushData.frameIndex)].view;
 
-    vec3 pos    = vertexHeaps[pushData.vertexBufferIndex].vertices[nonuniformEXT(vertexIdx)].position;
-    gl_Position = vec4(pos, 2.0);
-    fragColor   = uniformHeaps[pushData.frameIndex].color.rgb;
+    vec3 pos = vertexHeaps[pushData.vertexBufferIndex].vertices[nonuniformEXT(vertexIdx)].position;
+
+    mat4 view = mat4(uniformHeaps[pushData.frameIndex].view[0],
+                     uniformHeaps[pushData.frameIndex].view[1],
+                     uniformHeaps[pushData.frameIndex].view[2],
+                     uniformHeaps[pushData.frameIndex].view[3]);
+
+    mat4 proj = mat4(uniformHeaps[pushData.frameIndex].proj[0],
+                     uniformHeaps[pushData.frameIndex].proj[1],
+                     uniformHeaps[pushData.frameIndex].proj[2],
+                     uniformHeaps[pushData.frameIndex].proj[3]);
+
+    gl_Position = proj * view * pushData.transform * vec4(pos, 1.0);
+
+    fragColor = uniformHeaps[pushData.frameIndex].color.rgb;
 }
