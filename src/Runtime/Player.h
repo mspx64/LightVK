@@ -12,8 +12,8 @@ struct Player {
 
 class PlayerSystem {
 public:
-    void Update(float dt);
-    void Init(Lgt::World& world);
+    void Update(float dt, Lgt::InputManager* input, Lgt::World* world);
+    void Init(Lgt::World* world);
     void ShutDown();
 
 private:

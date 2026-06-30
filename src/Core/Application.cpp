@@ -26,6 +26,7 @@ void Application::Run() {
 
     while (!glfwWindowShouldClose(window_)) {
         timer_.Tick();
+       // input_.BeginFrame();
         OnUpdate(currentFrame);
         glfwPollEvents();
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

@@ -16,7 +16,12 @@ public:
         player.Add<Lgt::Component::Transform>();
     }
 
-    void OnUpdate(uint32_t currentFrame) override {}
+    void OnUpdate(uint32_t currentFrame) override {
+        // player_system_.Update(timer_.DeltaTime(), &input_, &world_);
+    }
+
+private:
+    // Game::PlayerSystem player_system_;
 };
 
 int main() {

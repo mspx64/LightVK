@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "Logger.h"
 #include "World.h"
+#include "InputManager.h"
 
 namespace Lgt {
 class Application {
@@ -20,8 +21,9 @@ protected:
     virtual void OnUpdate(uint32_t currentFrame) {}
     virtual void OnShutdown() {}
 
-    GLFWwindow* window_ = nullptr;
-    World       world_;
-    Timer       timer_;
+    GLFWwindow*  window_ = nullptr;
+    World        world_;
+   // InputManager input_;
+    Timer        timer_;
 };
 } // namespace Lgt
