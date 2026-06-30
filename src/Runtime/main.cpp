@@ -4,24 +4,27 @@
 class RuntimeApp : public Lgt::Application {
 public:
     void OnInit() override {
-        Lgt::SceneSerializer serializer(&world_);
+        Lgt::SceneSerializer serializer(world_.get());
         if (serializer.DeserializeBinary("scene.bin")) {
             LIGHTVK_INFO("Successfully loaded scene.bin in Runtime!");
         } else {
-            LIGHTVK_WARN("Failed to load scene.bin");
+            LIGHTVK_ERROR("Failed to load scene.bin");
         }
 
-        auto player = world_.CreateEntity("Player");
-        player.Add<Game::Components::Player>("Mahesh", 100, true);
-        player.Add<Lgt::Component::Transform>();
+        player_system_.Init(world_.get());
     }
 
     void OnUpdate(uint32_t currentFrame) override {
-        // player_system_.Update(timer_.DeltaTime(), &input_, &world_);
+        auto view = world_->Registry().view<Game::Components::Player, Lgt::Component::Transform>();
+        for (auto&& [enitty, player, transform] : view.each()) {
+            LIGHTVK_TRACE(
+                "Player {} : x {} , y{} , z {}", player.name, transform.position.x, transform.position.y, transform.position.z);
+        }
+        player_system_.Update(timer_->DeltaTime(), input_.get(), world_.get());
     }
 
 private:
-    // Game::PlayerSystem player_system_;
+    Game::PlayerSystem player_system_;
 };
 
 int main() {

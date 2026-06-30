@@ -21,9 +21,9 @@ protected:
     virtual void OnUpdate(uint32_t currentFrame) {}
     virtual void OnShutdown() {}
 
-    GLFWwindow*  window_ = nullptr;
-    World        world_;
-   // InputManager input_;
-    Timer        timer_;
+    GLFWwindow*                   window_ = nullptr;
+    std::unique_ptr<World>        world_;
+    std::unique_ptr<InputManager> input_;
+    std::unique_ptr<Timer>        timer_;
 };
 } // namespace Lgt
