@@ -54,6 +54,8 @@ struct Mesh {
     uint32_t materialIndex     = 0;
 };
 
-struct Camera {};
+struct Camera {
+    glm::vec3 pos = {0.f, 0.f, 0.f};
+};
 
 } // namespace Lgt::Component

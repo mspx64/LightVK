@@ -16,21 +16,14 @@ void Application::Init() {
     window_ = glfwCreateWindow(WIDTH, HEIGHT, "DoggEngine", nullptr, nullptr);
 
     Vulkan::g_Context.Init(window_);
-    auto props = Vulkan::g_Context.device->DescriptorHeapProperties();
-    LIGHTVK_INFO(
-        "bufferDescriptorSize={}, bufferDescriptorAlignment={}", props.bufferDescriptorSize, props.bufferDescriptorAlignment);
-
     Gpu::g_Context.Init(window_);
-
-    auto prespective = Matrix::Perspective(1.45, WIDTH / HEIGHT, 1, 100);
-    prespective.print();
 
     OnInit();
 }
 
 void Application::Run() {
     uint32_t currentFrame = 0;
-    
+
     while (!glfwWindowShouldClose(window_)) {
         timer_.Tick();
         OnUpdate(currentFrame);
