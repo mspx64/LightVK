@@ -64,6 +64,6 @@ add_custom_target(compile_shaders ALL DEPENDS ${COMPILED_SHADERS})
 set(VOLK_SOURCE "${VULKAN_SDK_PATH}/Include/Volk/volk.c"
     CACHE STRING "Volk loader source path")
 
-add_subdirectory(src/Core)   
+add_subdirectory(src/Engine)   
 add_subdirectory(src/Editor) 
 add_subdirectory(src/Runtime)

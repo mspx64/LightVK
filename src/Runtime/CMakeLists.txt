@@ -11,7 +11,7 @@ add_dependencies(LightVK_Runtime compile_shaders)
 
 target_link_libraries(LightVK_Runtime
     PRIVATE
-        LightVKCore
+        LightVKEngine
 )
 
 add_custom_command(TARGET LightVK_Runtime POST_BUILD
