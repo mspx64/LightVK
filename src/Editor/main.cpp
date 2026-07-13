@@ -1,11 +1,11 @@
-#include "Core/Application.h"
+#include "Engine/Core/Application.h"
 #include "Editor/Assets.h"
-#include "Core/Vulkan/Context.h"
-#include "Core/Gpu/Context.h"
-#include "Core/Gpu/Resource.h"
-#include "Core/SceneSerializer.h"
-#include "Core/Components.h"
-#include "Core/Entity.h"
+#include "Engine/Renderer/Vulkan/Context.h"
+#include "Engine/Renderer/Gpu/Context.h"
+#include "Engine/Renderer/Gpu/Resource.h"
+#include "Engine/Scene/SceneSerializer.h"
+#include "Engine/Scene/Components.h"
+#include "Engine/Scene/Entity.h"
 
 class EditorApp : public Lgt::Application {
 public:

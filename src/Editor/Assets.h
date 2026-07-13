@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
-#include <Core/Gpu/Resource.h>
+#include "Engine/Renderer/Gpu/Resource.h"
 // forward decals
 
 namespace Lgt::Assets {

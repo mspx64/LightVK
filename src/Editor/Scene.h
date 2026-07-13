@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 
 #include "Assets.h"
-#include <Core/Gpu/Renderer.h>
+#include "Engine/Renderer/Gpu/Renderer.h"
 
 namespace Lgt::Editor {
 /*the plan -> ? editor loads the gltf and all the assets and builds a map and then the game loads that map at
@@ -15,11 +15,8 @@ class Scene {
 private:
     Gpu::DrawList  drawList_;
     entt::registry registry_;
-
 public:
     void           updateDrawList();
-    
-    
     Gpu::DrawList* drawList() { return &drawList_; }
 };
 
