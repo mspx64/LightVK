@@ -18,8 +18,11 @@ public:
     template <typename T> const bool           Has() const;
 
     entt::entity Handle() { return handle_; }
+    bool         IsValid() { return handle_ != entt::null; }
     bool         operator==(const Entity& o) const { return handle_ == o.handle_; }
     bool         operator!=(const Entity& o) const { return !(*this == o); }
+
+    inline static Entity Null() { return Entity(entt::null, nullptr); }
 
 private:
     entt::entity handle_ = entt::null;

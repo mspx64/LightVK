@@ -8,6 +8,7 @@
 #include "InputManager.h"
 
 namespace Lgt {
+
 class Application {
 public:
     void Init();
@@ -26,4 +27,5 @@ protected:
     std::unique_ptr<InputManager> input_;
     std::unique_ptr<Timer>        timer_;
 };
+
 } // namespace Lgt

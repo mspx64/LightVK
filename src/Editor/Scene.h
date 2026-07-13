@@ -15,11 +15,8 @@ class Scene {
 private:
     Gpu::DrawList  drawList_;
     entt::registry registry_;
-
 public:
     void           updateDrawList();
-    
-    
     Gpu::DrawList* drawList() { return &drawList_; }
 };
 
