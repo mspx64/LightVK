@@ -40,10 +40,10 @@ void SceneGraph::Attach(Entity child, Entity parent) {
         parent_child_h.prevSibling = child;
     }
 
+    child_h.nextSibling = parent_h.firstChild;
+    child_h.prevSibling = Entity::Null();
     child_h.parent      = parent;
     parent_h.firstChild = child;
-    child_h.prevSibling = Entity::Null();
-    child_h.nextSibling = parent_h.firstChild;
 }
 
 void SceneGraph::SetParent(Entity child, Entity parent) {

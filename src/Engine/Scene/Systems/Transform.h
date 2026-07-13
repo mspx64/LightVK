@@ -2,6 +2,7 @@
 
 namespace Lgt {
 class World;
+class Entity;
 } // namespace  Lgt
 
 namespace Lgt::Systems {
@@ -12,6 +13,8 @@ public:
     void Update();
 
 private:
+    void   ComputeWorld(Entity entity);
+    void   UpdateSubtree(Entity entity);
     World* world_ = nullptr;
 };
 } // namespace Lgt::Systems

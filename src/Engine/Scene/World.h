@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "Engine/Core/GlmConfig.h"
+#include "Engine/Scene/Systems/Transform.h"
 #include <entt/entt.hpp>
 
 namespace Lgt {
@@ -26,7 +27,8 @@ public:
     Gpu::DrawList         DrawList();
 
 private:
-    entt::registry m_Registry;
+    Systems::Transform transform_sys;
+    entt::registry     m_Registry;
 };
 
 } // namespace Lgt

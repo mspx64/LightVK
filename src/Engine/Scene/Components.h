@@ -19,22 +19,13 @@ struct Tag {
 
 struct Hierarchy {
     Entity parent      = Entity::Null();
-    Entity firstChild       = Entity::Null();
+    Entity firstChild  = Entity::Null();
     Entity nextSibling = Entity::Null();
     Entity prevSibling = Entity::Null();
 };
 
-struct Transform {
-    glm::vec3 position = {0.f, 0.f, 0.f};
-    glm::quat rotation = glm::identity<glm::quat>();
-    glm::vec3 scale    = {1.f, 1.f, 1.f};
-
-    glm::mat4 Matrix() const {
-        glm::mat4 t = glm::translate(glm::mat4(1.f), position);
-        glm::mat4 r = glm::mat4_cast(rotation);
-        glm::mat4 s = glm::scale(glm::mat4(1.f), scale);
-        return t * r * s;
-    }
+struct WorldTransform {
+    glm::mat4 matrix = glm::mat4(1.0f);
 };
 
 struct LocalTransform {

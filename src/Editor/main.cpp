@@ -18,7 +18,6 @@ public:
 
         // Test scene setup
         auto e = world_->CreateEntity("TestSphere");
-        e.Add<Lgt::Component::Transform>();
 
         // Save scene
         Lgt::SceneSerializer serializer(world_.get());

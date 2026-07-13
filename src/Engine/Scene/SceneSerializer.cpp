@@ -72,7 +72,7 @@ bool SceneSerializer::SerializeBinary(const std::filesystem::path& filepath) {
     }
 
     // Serialize POD Components
-    SerializeComponentArray<Component::Transform>(out, reg);
+    SerializeComponentArray<Component::WorldTransform>(out, reg);
     SerializeComponentArray<Component::Material>(out, reg);
     SerializeComponentArray<Component::DirectionalLight>(out, reg);
     SerializeComponentArray<Component::PointLight>(out, reg);
@@ -110,7 +110,7 @@ bool SceneSerializer::DeserializeBinary(const std::filesystem::path& filepath) {
     }
 
     // Deserialize POD Components
-    DeserializeComponentArray<Component::Transform>(in, reg);
+    DeserializeComponentArray<Component::WorldTransform>(in, reg);
     DeserializeComponentArray<Component::Material>(in, reg);
     DeserializeComponentArray<Component::DirectionalLight>(in, reg);
     DeserializeComponentArray<Component::PointLight>(in, reg);
