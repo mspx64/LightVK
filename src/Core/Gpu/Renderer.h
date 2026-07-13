@@ -31,7 +31,7 @@ public:
     void Init(GLFWwindow* window);
     void ShutDown();
     void Render(DrawList* list, uint32_t frameIndex);
-    void BeginFrame(uint32_t frameIndex);
+    bool BeginFrame(uint32_t frameIndex);
     void EndFrame();
 
 private:

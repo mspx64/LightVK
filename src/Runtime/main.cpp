@@ -14,14 +14,7 @@ public:
         player_system_.Init(world_.get());
     }
 
-    void OnUpdate(uint32_t currentFrame) override {
-        auto view = world_->Registry().view<Game::Components::Player, Lgt::Component::Transform>();
-        for (auto&& [enitty, player, transform] : view.each()) {
-            LIGHTVK_TRACE(
-                "Player {} : x {} , y{} , z {}", player.name, transform.position.x, transform.position.y, transform.position.z);
-        }
-        player_system_.Update(timer_->DeltaTime(), input_.get(), world_.get());
-    }
+    void OnUpdate(uint32_t currentFrame) override { player_system_.Update(timer_->DeltaTime(), input_.get(), world_.get()); }
 
 private:
     Game::PlayerSystem player_system_;

@@ -56,16 +56,22 @@ void Renderer::recreateSwapchain() {
 
 void Renderer::Render(DrawList* list, uint32_t frameIndex) {
 
-    BeginFrame(frameIndex);
-    LGT_ASSERT(list);
+    if (!BeginFrame(frameIndex))
+        return; // swapchain out-of-date, skip this frame
 
+    // TODO-------------------------------------------
+    auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
+    LGT_ASSERT(ubo);
+    FrameUBO ubodata{glm::vec3{1.0, 1.0, 1.0}};
+    memcpy(ubo->mapped, &ubodata, sizeof(FrameUBO));
+    //------------------------------------------------
     auto cmd = commandBuffers_[currentFrame_];
 
     VkViewport viewport{};
     viewport.x        = 0.0f;
     viewport.y        = 0.0f;
-    viewport.width    = static_cast<float>(swapchain_.Extent().width);  // Or your window width
-    viewport.height   = static_cast<float>(swapchain_.Extent().height); // Or your window height
+    viewport.width    = static_cast<float>(swapchain_.Extent().width);
+    viewport.height   = static_cast<float>(swapchain_.Extent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -77,13 +83,6 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
 
     vkCmdSetScissor(cmd, 0, 1, &scissor);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, TraingleGfxPipeline_);
-
-    // TODO-------------------------------------------
-    auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
-    LGT_ASSERT(ubo);
-    FrameUBO ubodata{glm::vec3{1.0, 1.0, 1.0}};
-    memcpy(ubo->mapped, &ubodata, sizeof(FrameUBO));
-    //------------------------------------------------
 
     for (int i = 0; i < list->count; ++i) {
 
@@ -105,13 +104,13 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
     EndFrame();
 }
 
-void Renderer::BeginFrame(uint32_t frameindex) {
+bool Renderer::BeginFrame(uint32_t frameindex) {
     currentFrame_ = frameindex;
 
     vkWaitForFences(Vulkan::g_Context.device->Logical(), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
 
     VkResult result = vkAcquireNextImageKHR(Vulkan::g_Context.device->Logical(),
-                                            swapchain_.Handle(), // <-- .Handle()
+                                            swapchain_.Handle(),
                                             UINT64_MAX,
                                             imageAvailableSems_[currentFrame_],
                                             VK_NULL_HANDLE,
@@ -119,7 +118,7 @@ void Renderer::BeginFrame(uint32_t frameindex) {
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapchain();
-        return;
+        return false;
     }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         throw std::runtime_error("vkAcquireNextImageKHR failed");
@@ -205,6 +204,7 @@ void Renderer::BeginFrame(uint32_t frameindex) {
     renderingInfo.pColorAttachments    = &colorAttachment;
 
     vkCmdBeginRendering(cmd, &renderingInfo);
+    return true;
 }
 
 void Renderer::EndFrame() {
