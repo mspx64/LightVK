@@ -5,6 +5,7 @@
 
 #include "Device.h"
 #include "Core/Logger.h"
+#include "Core/VkCheck.h"
 
 static bool HasFlag(VkQueueFlags flags, VkQueueFlags bit) {
     return (flags & bit) == bit;

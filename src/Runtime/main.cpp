@@ -1,4 +1,5 @@
 #include "Core/LighVk.h"
+#include "Core/Logger.h"
 #include "Player.h"
 
 class RuntimeApp : public Lgt::Application {

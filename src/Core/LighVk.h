@@ -5,3 +5,4 @@
 #include "Timer.h"
 #include "World.h"
 #include "SceneSerializer.h"
+#include "InputManager.h"

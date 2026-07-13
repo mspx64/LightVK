@@ -1,4 +1,5 @@
 #include "Core/Logger.h"
+#include "Core/VkCheck.h"
 #include "Allocator.h"
 
 VulkanAllocator::VulkanAllocator(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device) {

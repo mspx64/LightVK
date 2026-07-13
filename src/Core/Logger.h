@@ -141,12 +141,6 @@ inline const char* VkResultToString(int64_t result) {
 #define LIGHTVK_CRITICAL(msg, ...) Log::Core()->critical("[{}]: " msg, __func__, ##__VA_ARGS__)
 #define LOG_SHUTDOWN()             Log::Shutdown();
 
-#define VK_CHECK(x)                                                                                                              \
-    do {                                                                                                                         \
-        VkResult err = x;                                                                                                        \
-        if (err != VK_SUCCESS)                                                                                                   \
-            LIGHTVK_ERROR("[Vulkan] {} at {}:{}", VkResultToString(err), __FILE__, __LINE__);                                    \
-    } while (0)
 
 #if defined(__clang__)
 #define LGT_DEBUGBREAK() __builtin_trap()

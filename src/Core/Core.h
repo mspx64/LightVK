@@ -1,5 +1,6 @@
 #pragma once
-#include "glm/glm.hpp"
+#include "GlmConfig.h"
+#include <cstdint>
 
 #ifdef _WIN32
     #ifdef LIGHTVK_CORE_BUILD

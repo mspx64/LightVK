@@ -1,7 +1,12 @@
 #include "Application.h"
+#include "Timer.h"
+#include "World.h"
+#include "InputManager.h"
+#include "Logger.h"
+#include <GLFW/glfw3.h>
+#include "Vulkan/Helpers.h"
 #include "Vulkan/Context.h"
 #include "Gpu/Context.h"
-
 #include "Math.h"
 
 namespace Lgt {
@@ -50,5 +55,8 @@ void Application::Shutdown() {
     Gpu::g_Context.Shutdown();
     Vulkan::g_Context.Shutdown();
 }
+
+Application::Application() = default;
+Application::~Application() = default;
 
 } // namespace Lgt

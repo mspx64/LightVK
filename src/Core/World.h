@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <glm/glm.hpp>
+#include "GlmConfig.h"
 #include <entt/entt.hpp>
 
 namespace Lgt {

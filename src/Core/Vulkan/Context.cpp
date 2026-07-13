@@ -1,5 +1,6 @@
 #include "Context.h"
 #include "Core/Logger.h"
+#include "Core/VkCheck.h"
 
 namespace Lgt::Vulkan {
 Context g_Context;

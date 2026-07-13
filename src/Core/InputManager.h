@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include <glm/glm.hpp>
+#include "GlmConfig.h"
 #include <array>
 
 struct GLFWwindow;

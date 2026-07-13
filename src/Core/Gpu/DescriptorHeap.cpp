@@ -2,6 +2,7 @@
 #include "Context.h"
 #include <Core/Vulkan/Context.h>
 #include "Core/Logger.h"
+#include "Core/VkCheck.h"
 
 namespace Lgt::Gpu {
 

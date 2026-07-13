@@ -1,22 +1,24 @@
 #pragma once
-#include "Gpu/Renderer.h"
-#include "Gpu/Resource.h"
+#include <memory>
 
 #include "Timer.h"
-#include "Logger.h"
 #include "World.h"
 #include "InputManager.h"
+
+struct GLFWwindow;
 
 namespace Lgt {
 
 class Application {
 public:
+    Application();
+    virtual ~Application();
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+
     void Init();
     void Run();
     void Shutdown();
-
-    virtual ~Application() = default;
-
 protected:
     virtual void OnInit() {}
     virtual void OnUpdate(uint32_t currentFrame) {}
