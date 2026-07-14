@@ -1,5 +1,6 @@
 #include "SceneGraph.h"
 #include "Engine/Scene/Components.h"
+#include "Engine/Core/Logger.h"
 
 namespace Lgt {
 
@@ -7,16 +8,16 @@ void SceneGraph::Detach(Entity entity) {
 
     auto& entity_h = entity.Get<Component::Hierarchy>();
 
-    if (!entity_h.parent.IsValid())
+    if (!entity_h.parent)
         return;
 
     auto& parent_h = entity_h.parent.Get<Component::Hierarchy>();
 
-    if (entity_h.nextSibling.IsValid()) {
+    if (entity_h.nextSibling) {
         entity_h.nextSibling.Get<Component::Hierarchy>().prevSibling = entity_h.prevSibling;
     }
 
-    if (entity_h.prevSibling.IsValid()) {
+    if (entity_h.prevSibling) {
         entity_h.prevSibling.Get<Component::Hierarchy>().nextSibling = entity_h.nextSibling;
     } else {
         parent_h.firstChild = entity_h.nextSibling;
@@ -35,7 +36,7 @@ void SceneGraph::Attach(Entity child, Entity parent) {
     auto& parent_h = parent.Get<Component::Hierarchy>();
     auto& child_h  = child.Get<Component::Hierarchy>();
 
-    if (parent_h.firstChild.IsValid()) {
+    if (parent_h.firstChild) {
         auto& parent_child_h       = parent_h.firstChild.Get<Component::Hierarchy>();
         parent_child_h.prevSibling = child;
     }
@@ -46,10 +47,33 @@ void SceneGraph::Attach(Entity child, Entity parent) {
     parent_h.firstChild = child;
 }
 
-void SceneGraph::SetParent(Entity child, Entity parent) {
-    // TODO add cycle detections here
-    // this function handels the graph validation
+// this function handels the graph validation
+void SceneGraph::SetParent(Entity parent, Entity child) {
+
+    if (child == parent) {
+        LIGHTVK_WARN("Cannot parent an entity to itself.");
+        return;
+    }
+
+    // check if the new parent is decscedant of the child or not
+    if (IsDescendant(parent, child)) {
+        LIGHTVK_WARN("Cannot set parent: the specified parent is a descendant of the child. This would create a cycle in the "
+                     "scene hierarchy.");
+        return;
+    }
+
     Attach(child, parent);
+}
+
+bool SceneGraph::IsDescendant(Entity entity, Entity parent) const noexcept {
+    auto current = entity;
+    while (current) {
+        if (parent == current)
+            return true;
+        current = current.Get<Component::Hierarchy>().parent;
+    }
+
+    return false;
 }
 
 } // namespace  Lgt

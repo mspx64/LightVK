@@ -21,7 +21,6 @@ void Application::Init() {
     LIGHTVK_WARN("Testing Warn");
     LIGHTVK_INFO("Testing Info");
 
-    
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 

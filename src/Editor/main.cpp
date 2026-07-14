@@ -6,18 +6,31 @@
 #include "Engine/Scene/SceneSerializer.h"
 #include "Engine/Scene/Components.h"
 #include "Engine/Scene/Entity.h"
+#include "Engine/Scene/SceneGraph.h"
 
 class EditorApp : public Lgt::Application {
 public:
     Lgt::Gpu::DrawList drawList;
 
     void OnInit() override {
+
         Lgt::Assets::Model model;
         Lgt::Assets::LoadGltf("D:/DEV/cpp/LightVK/Assets/Sphere/Untitled.gltf", &model);
         drawList = BuildDrawList(model);
 
+        Lgt::SceneGraph scene_graph(world_.get());
+
         // Test scene setup
-        auto e = world_->CreateEntity("TestSphere");
+        auto e  = world_->CreateEntity("TestSphere");
+        auto e1 = world_->CreateEntity("TestChild");
+        auto e2 = world_->CreateEntity("TestChild");
+        auto e3 = world_->CreateEntity("TestChild");
+        auto e4 = world_->CreateEntity("TestChild");
+
+        scene_graph.SetParent(e1, e);
+        scene_graph.SetParent(e, e3);
+        scene_graph.SetParent(e1, e2);
+        scene_graph.SetParent(e, e1);
 
         // Save scene
         Lgt::SceneSerializer serializer(world_.get());
