@@ -33,7 +33,7 @@ public:
     float*       data() { return _elements; }
 
     inline Matrix operator*(const Matrix& other) const {
-        LGT_ASSERT_MSG(_cols == other._rows, "Matrix multiplication dimension mismatch");
+        LGT_ASSERT(_cols == other._rows, "Matrix multiplication dimension mismatch");
         Matrix result(_rows, other._cols);
         for (size_t i = 0; i < _rows; ++i) {
             for (size_t j = 0; j < other._cols; ++j) {
@@ -46,7 +46,7 @@ public:
     }
 
     inline Matrix operator+(const Matrix& other) const {
-        LGT_ASSERT_MSG(_rows == other._rows && _cols == other._cols, "Matrix addition dimension mismatch");
+        LGT_ASSERT(_rows == other._rows && _cols == other._cols, "Matrix addition dimension mismatch");
         Matrix result(_rows, _cols);
         for (size_t i = 0; i < _rows; ++i) {
             for (size_t j = 0; j < _cols; ++j) {
@@ -77,7 +77,7 @@ public:
     }
 
     static inline Matrix Identity(size_t rows, size_t cols) {
-        LGT_ASSERT_MSG(rows == cols, "Identity matrix must be square");
+        LGT_ASSERT(rows == cols, "Identity matrix must be square");
         Matrix result(rows, cols);
         result.fill(0.0f);
         for (size_t i = 0; i < rows; ++i)

@@ -44,9 +44,9 @@ VulkanLoadTimeStagingUploader::~VulkanLoadTimeStagingUploader() {
 
 void VulkanLoadTimeStagingUploader::UploadBuffer(VkBuffer dst, const void* data, uint32_t size, uint32_t dstOffset) {
 
-    LGT_ASSERT_MSG(dst != VK_NULL_HANDLE, "[LoadUploader] dst buffer is null");
-    LGT_ASSERT_MSG(data, "[LoadUploader] data pointer is null");
-    LGT_ASSERT_MSG(size > 0, "[LoadUploader] upload size is 0");
+    LGT_ASSERT(dst != VK_NULL_HANDLE, "[LoadUploader] dst buffer is null");
+    LGT_ASSERT(data, "[LoadUploader] data pointer is null");
+    LGT_ASSERT(size > 0, "[LoadUploader] upload size is 0");
 
     uint32_t offset = pushData(data, size);
     m_BufferUploads.push_back({dst, offset, dstOffset, size});
@@ -55,9 +55,9 @@ void VulkanLoadTimeStagingUploader::UploadBuffer(VkBuffer dst, const void* data,
 
 void VulkanLoadTimeStagingUploader::uploadTexture(VkImage dst, const void* data, uint32_t size, const TextureCopy& region) {
 
-    LGT_ASSERT_MSG(dst != VK_NULL_HANDLE, "[LoadUploader] dst image is null");
-    LGT_ASSERT_MSG(data, "[LoadUploader] data pointer is null");
-    LGT_ASSERT_MSG(size > 0, "[LoadUploader] upload size is 0");
+    LGT_ASSERT(dst != VK_NULL_HANDLE, "[LoadUploader] dst image is null");
+    LGT_ASSERT(data, "[LoadUploader] data pointer is null");
+    LGT_ASSERT(size > 0, "[LoadUploader] upload size is 0");
 
     uint32_t offset = pushData(data, size);
     m_TextureUploads.push_back({dst, offset, size, region});
@@ -82,14 +82,14 @@ void VulkanLoadTimeStagingUploader::Flush() {
     vmaCI.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
     bool ok = g_Context.allocator->createBuffer((uint32_t)m_CPUData.size(),
-                                               VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                                               VMA_MEMORY_USAGE_AUTO,
-                                               vmaCI.flags,
-                                               stagingBuffer,
-                                               stagingAlloc,
-                                               &stagingInfo);
+                                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                                VMA_MEMORY_USAGE_AUTO,
+                                                vmaCI.flags,
+                                                stagingBuffer,
+                                                stagingAlloc,
+                                                &stagingInfo);
 
-    LGT_ASSERT_MSG(ok, "[LoadUploader] Failed to create staging buffer ({:.2f} MB)", m_CPUData.size() / (1024.0f * 1024.0f));
+    LGT_ASSERT(ok, "Failed to create staging buffer ({:.2f} MB)", m_CPUData.size() / (1024.0f * 1024.0f));
 
     // Single memcpy — all data already packed in m_CPUData
     std::memcpy(stagingInfo.pMappedData, m_CPUData.data(), m_CPUData.size());

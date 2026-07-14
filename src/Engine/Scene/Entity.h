@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Scene/World.h"
+#include "Engine/Core/Logger.h"
 
 namespace Lgt {
 
@@ -11,42 +12,64 @@ public:
         : handle_(handle),
           world_(world) {}
 
-    template <typename T, typename... Args> T& Add(Args&&... args);
-    template <typename T> T&                   Remove();
-    template <typename T> T&                   Get();
-    template <typename T> const T&             Get() const;
-    template <typename T> const bool           Has() const;
+    template <typename T, typename... Args> decltype(auto) Add(Args&&... args);
+    template <typename T> decltype(auto)                   Get();
+    template <typename T> decltype(auto)                   Get() const;
+    template <typename T> void                             Remove();
+    template <typename T> bool                             Has() const;
 
-    entt::entity Handle() { return handle_; }
-    bool         IsValid() { return handle_ != entt::null; }
-    bool         operator==(const Entity& o) const { return handle_ == o.handle_; }
-    bool         operator!=(const Entity& o) const { return !(*this == o); }
+    [[nodiscard]]
+    constexpr entt::entity Handle() const noexcept {
+        return handle_;
+    }
 
-    inline static Entity Null() { return Entity(entt::null, nullptr); }
+    [[nodiscard]] bool IsValid() const noexcept { return handle_ != entt::null && world_ && world_->Registry().valid(handle_); }
+
+    constexpr bool     operator==(const Entity& o) const noexcept { return handle_ == o.handle_ && world_ == o.world_; }
+    constexpr bool     operator!=(const Entity& o) const noexcept { return !(*this == o); }
+    constexpr explicit operator bool() const noexcept { return IsValid(); }
+
+    inline static Entity Null() noexcept { return Entity(entt::null, nullptr); }
 
 private:
+    inline void  Validate() const;
     entt::entity handle_ = entt::null;
     World*       world_  = nullptr;
 };
 
-//-------------------------------------------------------------------------------
-template <typename T, typename... Args> inline T& Entity::Add(Args&&... args) {
+inline void Entity::Validate() const {
+    LGT_ASSERT(handle_ != entt::null, "Null entity");
+    LGT_ASSERT(world_ != nullptr, "Null world");
+    LGT_ASSERT(world_->Registry().valid(handle_), "Destroyed entity");
+}
+
+template <typename T, typename... Args> inline decltype(auto) Entity::Add(Args&&... args) {
+    LGT_ASSERT_STATIC(!std::is_reference_v<T>, "Component type cannot be a reference");
+    if (!LIGHTVK_VERIFY(!Has<T>(), "Component already exists on this entity! Use Get()")) {}
     return world_->Registry().emplace<T>(handle_, std::forward<Args>(args)...);
 }
 
-template <typename T> inline T& Entity::Remove() {
-    return world_->Registry().Remove<T>(handle_);
+template <typename T> inline void Entity::Remove() {
+    LGT_ASSERT_STATIC(!std::is_reference_v<T>, "Component type cannot be a reference");
+    if (!LIGHTVK_VERIFY(Has<T>(), "Component dose not exists on this entity! Use Add()")) {}
+    world_->Registry().Remove<T>(handle_);
 }
 
-template <typename T> inline T& Entity::Get() {
+template <typename T> inline decltype(auto) Entity::Get() {
+    LGT_ASSERT_STATIC(!std::is_reference_v<T>, "Component type cannot be a reference");
+    if (!LIGHTVK_VERIFY(Has<T>(), "Component dose not exists on this entity! Use Add()")) {}
     return world_->Registry().get<T>(handle_);
 }
 
-template <typename T> inline const T& Entity::Get() const {
+template <typename T> inline decltype(auto) Entity::Get() const {
+    LGT_ASSERT_STATIC(!std::is_reference_v<T>, "Component type cannot be a reference");
+    if (!LIGHTVK_VERIFY(Has<T>(), "Component dose not exists on this entity! Use Add()")) {}
     return world_->Registry().get<T>(handle_);
 }
 
-template <typename T> inline const bool Entity::Has() const {
+template <typename T> inline bool Entity::Has() const {
+    LGT_ASSERT_STATIC(!std::is_reference_v<T>, "Component type cannot be a reference");
+    Validate();
     return world_->Registry().all_of<T>(handle_);
 }
 //-------------------------------------------------------------------------------

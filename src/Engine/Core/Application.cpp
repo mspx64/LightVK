@@ -21,6 +21,7 @@ void Application::Init() {
     LIGHTVK_WARN("Testing Warn");
     LIGHTVK_INFO("Testing Info");
 
+    
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -40,10 +41,9 @@ void Application::Run() {
     uint32_t currentFrame = 0;
 
     while (!glfwWindowShouldClose(window_)) {
-
         timer_->Tick();
         input_->BeginFrame();
-
+        world_->Update(1.0f);
         OnUpdate(currentFrame);
         glfwPollEvents();
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -56,7 +56,7 @@ void Application::Shutdown() {
     Vulkan::g_Context.Shutdown();
 }
 
-Application::Application() = default;
+Application::Application()  = default;
 Application::~Application() = default;
 
 } // namespace Lgt

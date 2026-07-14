@@ -61,7 +61,7 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
 
     // TODO-------------------------------------------
     auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
-    LGT_ASSERT(ubo);
+    LGT_ASSERT(ubo, "");
     FrameUBO ubodata{glm::vec3{1.0, 1.0, 1.0}};
     memcpy(ubo->mapped, &ubodata, sizeof(FrameUBO));
     //------------------------------------------------
@@ -395,7 +395,7 @@ void Renderer::createTestResources() {
     allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 
-    LGT_ASSERT(Vulkan::g_Context.allocator->createBuffer(bufferci, allocInfo, srcBuffer.buffer, srcBuffer.allocation))
+    LGT_ASSERT(Vulkan::g_Context.allocator->createBuffer(bufferci, allocInfo, srcBuffer.buffer, srcBuffer.allocation), "");
 
     void* ptr = Vulkan::g_Context.allocator->map(srcBuffer.allocation);
     memcpy(ptr, positions, 24);

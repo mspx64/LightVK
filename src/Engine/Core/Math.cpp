@@ -1,5 +1,3 @@
-
-
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -21,14 +19,14 @@ Matrix::Matrix(size_t rows, size_t cols) {
 }
 
 float& Matrix::at(size_t i, size_t j) {
-    LGT_ASSERT_MSG(i < _rows, "Row index out of bounds");
-    LGT_ASSERT_MSG(j < _cols, "Column index out of bounds");
+    LGT_ASSERT(i < _rows, "Row index out of bounds");
+    LGT_ASSERT(j < _cols, "Column index out of bounds");
     return _elements[i * _cols + j];
 }
 
 const float& Matrix::at(size_t i, size_t j) const {
-    LGT_ASSERT(i < _rows);
-    LGT_ASSERT(j < _cols);
+    LGT_ASSERT(i < _rows, "");
+    LGT_ASSERT(j < _cols, "");
     return _elements[i * _cols + j];
 }
 

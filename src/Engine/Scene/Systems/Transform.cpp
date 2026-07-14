@@ -5,7 +5,7 @@
 namespace Lgt {
 
 Systems::Transform::Transform(World* world) {
-    LGT_ASSERT(world);
+    LGT_ASSERT(world, "");
     world_ = world;
 }
 

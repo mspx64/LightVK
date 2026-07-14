@@ -55,16 +55,16 @@ DescriptorHeap::~DescriptorHeap() {
 uint32_t DescriptorHeap::AllocateSSBO(const BufferHandle& buffer) {
     m_CurrentOffset   = AlignUp(m_CurrentOffset, Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorAlignment);
     uint32_t gpuIndex = m_CurrentOffset / Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize;
-    LGT_ASSERT_MSG(m_CurrentOffset + Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize < m_Size,
-                   "Heap OverFlow");
+    LGT_ASSERT(m_CurrentOffset + Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize < m_Size,
+               "Heap OverFlow");
 
     auto* gpubuffer = g_Buffers.Get(buffer);
-    LGT_ASSERT(gpubuffer);
+    LGT_ASSERT(gpubuffer, "");
 
     VkDeviceAddressRangeEXT deviceAdderRange{};
     deviceAdderRange.size = gpubuffer->size;
-    LGT_ASSERT_MSG(gpubuffer->deviceAddress % Vulkan::g_Context.device->Limits().minStorageBufferOffsetAlignment == 0,
-                   "data->pAddressRange→address must be a multiple of minStorageBufferOffsetAlignment")
+    LGT_ASSERT(gpubuffer->deviceAddress % Vulkan::g_Context.device->Limits().minStorageBufferOffsetAlignment == 0,
+               "data->pAddressRange→address must be a multiple of minStorageBufferOffsetAlignment");
     deviceAdderRange.address = gpubuffer->deviceAddress;
 
     VkResourceDescriptorDataEXT descData{};
@@ -94,16 +94,16 @@ uint32_t DescriptorHeap::AllocateSSBO(const BufferHandle& buffer) {
 uint32_t DescriptorHeap::AllocateUBO(const BufferHandle& buffer) {
     m_CurrentOffset   = AlignUp(m_CurrentOffset, Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorAlignment);
     uint32_t gpuIndex = m_CurrentOffset / Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize;
-    LGT_ASSERT_MSG(m_CurrentOffset + Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize < m_Size,
-                   "Heap OverFlow");
+    LGT_ASSERT(m_CurrentOffset + Vulkan::g_Context.device->DescriptorHeapProperties().bufferDescriptorSize < m_Size,
+               "Heap OverFlow");
 
     auto* gpubuffer = g_Buffers.Get(buffer);
-    LGT_ASSERT(gpubuffer);
+    LGT_ASSERT(gpubuffer, "");
 
     VkDeviceAddressRangeEXT deviceAdderRange{};
     deviceAdderRange.size = gpubuffer->size;
-    LGT_ASSERT_MSG(gpubuffer->deviceAddress % Vulkan::g_Context.device->Limits().minUniformBufferOffsetAlignment == 0,
-                   "data->pAddressRange→address must be a multiple of minUniformBufferOffsetAlignment")
+    LGT_ASSERT(gpubuffer->deviceAddress % Vulkan::g_Context.device->Limits().minUniformBufferOffsetAlignment == 0,
+               "data->pAddressRange→address must be a multiple of minUniformBufferOffsetAlignment");
     deviceAdderRange.address = gpubuffer->deviceAddress;
 
     VkResourceDescriptorDataEXT descData{};

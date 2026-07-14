@@ -103,15 +103,13 @@ private:
     std::unordered_map<spdlog::level::level_enum, std::string> patterns_;
 };
 
-std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
+std::shared_ptr<spdlog::logger> Logger::s_CoreLogger;
 
-
-
-std::shared_ptr<spdlog::logger>& Log::Core() {
+std::shared_ptr<spdlog::logger>& Logger::Core() {
     return s_CoreLogger;
 }
 
-void Log::Init() {
+void Logger::Init() {
     spdlog::init_thread_pool(8192, 1);
 
     // Console sink with rate limiting and level-specific patterns
@@ -121,9 +119,9 @@ void Log::Init() {
     consoleSink->set_level(spdlog::level::trace);
 
     // Customize console patterns
-    consoleSink->set_pattern_for_level(spdlog::level::trace, "%^%v%$");
-    consoleSink->set_pattern_for_level(spdlog::level::debug, "%^%v%$");
-    consoleSink->set_pattern_for_level(spdlog::level::info, "%^%v%$");
+    consoleSink->set_pattern_for_level(spdlog::level::trace, "%^[%n]%v%$");
+    consoleSink->set_pattern_for_level(spdlog::level::debug, "%^[%n]%v%$");
+    consoleSink->set_pattern_for_level(spdlog::level::info, "%^[%n]%v%$");
     consoleSink->set_pattern_for_level(spdlog::level::warn, "%^[%n]%v%$");
     consoleSink->set_pattern_for_level(spdlog::level::err, "%^[%n]%v%$");
     consoleSink->set_pattern_for_level(spdlog::level::critical, "%^[%n]%v%$");
@@ -134,9 +132,9 @@ void Log::Init() {
     fileSink->set_level(spdlog::level::trace);
 
     // Detailed file patterns
-    fileSink->set_pattern_for_level(spdlog::level::trace, "[%Y-%m-%d %T.%e] [T] [%n] %v");
-    fileSink->set_pattern_for_level(spdlog::level::debug, "[%Y-%m-%d %T.%e] [D] [%n] [%!] %v");
-    fileSink->set_pattern_for_level(spdlog::level::info, "[%Y-%m-%d %T.%e] [I] [%n] %v");
+    fileSink->set_pattern_for_level(spdlog::level::trace, "[%Y-%m-%d %T.%e] [T] [thread %t] [%n] %v");
+    fileSink->set_pattern_for_level(spdlog::level::debug, "[%Y-%m-%d %T.%e] [D] [thread %t] [%n] [%!] %v");
+    fileSink->set_pattern_for_level(spdlog::level::info, "[%Y-%m-%d %T.%e] [I] [thread %t] [%n] %v");
     fileSink->set_pattern_for_level(spdlog::level::warn, "[%Y-%m-%d %T.%e] [W] [thread %t] [%n] [%!:%#] %v");
     fileSink->set_pattern_for_level(spdlog::level::err, "[%Y-%m-%d %T.%e] [E] [thread %t] [%n] [%s:%#] [%!] %v");
     fileSink->set_pattern_for_level(spdlog::level::critical, "[%Y-%m-%d %T.%e] [C] [thread %t] [%n] [%s:%#] [%!] %v");
@@ -149,7 +147,7 @@ void Log::Init() {
     spdlog::register_logger(s_CoreLogger);
 }
 
-void Log::Shutdown() {
+void Logger::Shutdown() {
     if (s_CoreLogger)
         s_CoreLogger->flush();
 
@@ -157,8 +155,7 @@ void Log::Shutdown() {
     spdlog::shutdown();
 }
 
-
-void Log::LogStatus(const std::string& msg) {
+void Logger::LogStatus(const std::string& msg) {
     if (!s_CoreLogger)
         return;
 

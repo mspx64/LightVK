@@ -6,9 +6,9 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#define ENABLE_ASSERTIONS
+#include "Engine/Core/Core.h"
 
-class Log {
+class Logger {
 public:
     static void                             Init();
     static void                             Shutdown();
@@ -126,53 +126,12 @@ inline const char* VkResultToString(int64_t result) {
     }
 }
 
-#define RX_CORE_TRACE(msg, ...)    Log::Core()->trace("[{}:{}] " msg, __func__, __LINE__, ##__VA_ARGS__)
-#define RX_CORE_INFO(msg, ...)     Log::Core()->info("[{}] " msg, __func__, ##__VA_ARGS__)
-#define RX_CORE_WARN(msg, ...)     Log::Core()->warn("[{}:{}] " msg, __func__, __LINE__, ##__VA_ARGS__)
-#define RX_CORE_ERROR(msg, ...)    Log::Core()->error("[{}:{}] " msg, __func__, __LINE__, ##__VA_ARGS__)
-#define RX_CORE_CRITICAL(msg, ...) Log::Core()->critical("[{}:{}] " msg, __func__, __LINE__, ##__VA_ARGS__)
-
 // for backward compatibility
-#define LOG_INIT()                 Log::Init()
-#define LIGHTVK_TRACE(msg, ...)    Log::Core()->trace("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define LIGHTVK_INFO(...)          Log::Core()->info(__VA_ARGS__)
-#define LIGHTVK_WARN(msg, ...)     Log::Core()->warn("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define LIGHTVK_ERROR(msg, ...)    Log::Core()->error("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define LIGHTVK_CRITICAL(msg, ...) Log::Core()->critical("[{}]: " msg, __func__, ##__VA_ARGS__)
-#define LOG_SHUTDOWN()             Log::Shutdown();
+#define LOG_INIT()     Logger::Init()
+#define LOG_SHUTDOWN() Logger::Shutdown();
 
-
-#if defined(__clang__)
-#define LGT_DEBUGBREAK() __builtin_trap()
-#elif defined(__GNUC__)
-#define LGT_DEBUGBREAK() __builtin_trap()
-#elif defined(_MSC_VER)
-#define LGT_DEBUGBREAK() __debugbreak()
-#else
-#include <cstdlib>
-#define LGT_DEBUGBREAK() std::abort()
-#endif
-
-#ifdef ENABLE_ASSERTIONS
-#define LGT_ASSERT(expr)                                                                                                         \
-    {                                                                                                                            \
-        if (!(expr)) {                                                                                                           \
-            spdlog::error("Assertion Failed! Expr: {}", #expr);                                                                  \
-            LGT_DEBUGBREAK();                                                                                                    \
-        }                                                                                                                        \
-    }
-
-#define LGT_ASSERT_MSG(expr, msg, ...)                                                                                           \
-    {                                                                                                                            \
-        if (!(expr)) {                                                                                                           \
-            spdlog::error("Assertion Failed: {} | Expr: "                                                                        \
-                          "{}",                                                                                                  \
-                          fmt::format(msg, ##__VA_ARGS__),                                                                       \
-                          #expr);                                                                                                \
-            LGT_DEBUGBREAK();                                                                                                    \
-        }                                                                                                                        \
-    }
-#else
-#define LGT_ASSERT(expr) (void)0
-#define LGT_ASSERT_MSG(expr, msg, ...)
-#endif
+#define LIGHTVK_TRACE(msg, ...)    Logger::Core()->trace("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_INFO(msg, ...)     Logger::Core()->info("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_WARN(msg, ...)     Logger::Core()->warn("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_ERROR(msg, ...)    Logger::Core()->error("[{}]: " msg, __func__, ##__VA_ARGS__)
+#define LIGHTVK_CRITICAL(msg, ...) Logger::Core()->critical("[{}]: " msg, __func__, ##__VA_ARGS__)

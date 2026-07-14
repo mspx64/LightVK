@@ -2,14 +2,27 @@
 #include "Engine/Core/GlmConfig.h"
 #include <cstdint>
 
+#define ENABLE_ASSERTIONS
+
 #ifdef _WIN32
-    #ifdef LIGHTVK_CORE_BUILD
-        #define LIGHTVK_API __declspec(dllexport)
-    #else
-        #define LIGHTVK_API __declspec(dllimport)
-    #endif
+#ifdef LIGHTVK_CORE_BUILD
+#define LIGHTVK_API __declspec(dllexport)
 #else
-    #define LIGHTVK_API
+#define LIGHTVK_API __declspec(dllimport)
+#endif
+#else
+#define LIGHTVK_API
+#endif
+
+#if defined(__clang__)
+#define LGT_DEBUGBREAK() __builtin_trap()
+#elif defined(__GNUC__)
+#define LGT_DEBUGBREAK() __builtin_trap()
+#elif defined(_MSC_VER)
+#define LGT_DEBUGBREAK() __debugbreak()
+#else
+#include <cstdlib>
+#define LGT_DEBUGBREAK() std::abort()
 #endif
 
 namespace Lgt {
@@ -39,6 +52,47 @@ public:
 
     ValueType id = INVALID;
 };
+
+// always executes
+#define LGT_ASSERT_CRITICAL(expr, msg, ...)                                                                                      \
+    do {                                                                                                                         \
+        if (!(expr)) {                                                                                                           \
+            LIGHTVK_CRITICAL("Assertion Failed | Expr : {} | " msg, #expr, ##__VA_ARGS__);                                       \
+            std::this_thread::sleep_for(std::chrono::seconds(1));                                                                \
+            LGT_DEBUGBREAK();                                                                                                    \
+        }                                                                                                                        \
+    } while (0)
+
+#define LGT_ASSERT_STATIC(expr, msg) static_assert(expr, msg " " #expr)
+
+#ifdef ENABLE_ASSERTIONS
+
+#define LGT_ASSERT(expr, msg, ...)                                                                                               \
+    do {                                                                                                                         \
+        if (!(expr)) {                                                                                                           \
+            LIGHTVK_CRITICAL("Assertion Failed | Expr : {} | " msg, #expr, ##__VA_ARGS__);                                       \
+            std::this_thread::sleep_for(std::chrono::seconds(1));                                                                \
+            LGT_DEBUGBREAK();                                                                                                    \
+        }                                                                                                                        \
+    } while (0)
+
+#define LIGHTVK_VERIFY(expr, msg, ...)                                                                                           \
+    ([&]() {                                                                                                                     \
+        auto&& result = (expr);                                                                                                  \
+        if (!result) {                                                                                                           \
+            LIGHTVK_ERROR("Verification Failed | Expr : {} | " msg, #expr, ##__VA_ARGS__);                                       \
+            std::this_thread::sleep_for(std::chrono::seconds(1));                                                                \
+            LGT_DEBUGBREAK();                                                                                                    \
+        }                                                                                                                        \
+        return result;                                                                                                           \
+    }())
+
+#else
+
+#define LGT_ASSERT(expr, msg...)       (void)0
+#define LIGHTVK_VERIFY(expr, msg, ...) (expr)
+
+#endif
 
 // GLM type aliases for consistency Temp (only
 // using them for the testing/debug)

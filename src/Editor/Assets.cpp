@@ -10,10 +10,10 @@ bool LoadGltf(const std::filesystem::path& path, Model* model) {
 
     fastgltf::Parser parser;
     auto             data = fastgltf::GltfDataBuffer::FromPath(path);
-    LGT_ASSERT_MSG(data.error() == fastgltf::Error::None, "Canot open gltf file {}", path.string());
+    LGT_ASSERT(data.error() == fastgltf::Error::None, "Canot open gltf file {}", path.string());
     auto gltf = parser.loadGltf(
         data.get(), path.parent_path(), fastgltf::Options::LoadExternalBuffers | fastgltf::Options::GenerateMeshIndices);
-    LGT_ASSERT_MSG(gltf.error() == fastgltf::Error::None, "Failed to parse gltf file {}", path.string());
+    LGT_ASSERT(gltf.error() == fastgltf::Error::None, "Failed to parse gltf file {}", path.string());
 
     // Load materials
     for (auto& material : gltf->materials) {

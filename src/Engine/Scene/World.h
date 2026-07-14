@@ -7,11 +7,17 @@
 
 namespace Lgt {
 
+// forward decals ----------------------------
 namespace Gpu {
 struct DrawList;
 }
 
+namespace Systems {
+class Transform;
+}
+
 class Entity;
+// -------------------------------------------
 
 class World {
 public:
@@ -19,8 +25,8 @@ public:
     ~World() = default;
 
     Entity CreateEntity(std::string name = "Entity");
-    void   destroyEntity(Entity entity);
-    void   update(float deltaTime);
+    void   DestroyEntity(Entity entity);
+    void   Update(float deltaTime);
 
     entt::registry&       Registry() { return m_Registry; }
     const entt::registry& Registry() const { return m_Registry; }
