@@ -5,7 +5,7 @@
 
 #include "Engine/Core/Logger.h"
 #include "Instance.h"
-
+    
 void VulkanInstance::Init(bool enableValidation, const std::vector<const char*>& validationLayers) {
     validation_ = enableValidation;
     if (validation_ && !checkValidationLayerSupport(validationLayers))

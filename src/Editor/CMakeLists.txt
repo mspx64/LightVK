@@ -12,7 +12,6 @@ add_dependencies(LightVK_Editor compile_shaders)
 target_link_libraries(LightVK_Editor
     PRIVATE
         LightVKEngine       
-        imgui::imgui     
 )
 
 add_custom_command(TARGET LightVK_Editor POST_BUILD

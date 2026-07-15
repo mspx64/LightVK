@@ -4,10 +4,9 @@
 
 namespace Lgt::Vulkan {
 Context g_Context;
-void   Context::Init(GLFWwindow* window) {
-    VK_CHECK(volkInitialize());
+void    Context::Init(GLFWwindow* window) {
+    LGT_ASSERT(volkInitialize() == VK_SUCCESS, "Filed to load the vulkan-1.dll");
 
-    // TODO modify this to use the RAII
     instance = new VulkanInstance();
     surface  = new VulkanSurface();
 
@@ -18,7 +17,7 @@ void   Context::Init(GLFWwindow* window) {
     // create surface
     surface->Init(instance->Handle(), window);
 
-    // create vulkan device after the loding instance with volk
+    // create vulkan device after loding instance with volk
     device = new VulkanDevice(instance->Handle(), surface->Handle(), DEVICE_EXTENSIONS, VALIDATION_LAYERS);
     volkLoadDevice(device->Logical());
 
@@ -28,7 +27,7 @@ void   Context::Init(GLFWwindow* window) {
 }
 void Context::Shutdown() {
     vkDeviceWaitIdle(g_Context.device->Logical());
-    
+
     delete uploader;
     delete allocator;
     delete device;

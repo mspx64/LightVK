@@ -1,5 +1,4 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include "Engine/Core/Logger.h"
 
 #define VK_CHECK(x)                                                                                                              \

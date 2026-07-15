@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include <Volk/volk.h>
+#include <volk.h>
+#include <vulkan/vulkan.h>
 #include "vk_mem_alloc.h"
 
 // -----------------------------------------------------------------------
@@ -32,7 +33,7 @@ static const std::vector<const char*> DEVICE_EXTENSIONS = {VK_KHR_SWAPCHAIN_EXTE
 #ifdef NDEBUG
 static constexpr bool ENABLE_VALIDATION = false;
 #else
-static constexpr bool ENABLE_VALIDATION = true;
+static constexpr bool ENABLE_VALIDATION = false;
 #endif
 
 // forward decals

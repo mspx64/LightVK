@@ -11,10 +11,10 @@ void PlayerSystem::Init(Lgt::World* world) {
 
 void PlayerSystem::Update(float dt, Lgt::InputManager* input, Lgt::World* world) {
     auto& transform = player.Get<Lgt::Component::LocalTransform>();
-
+    
     if (input->IsKeyDown(Lgt::Key::W)) {
         transform.position.y += 0.1f;
-    }
+    }   
     if (input->IsKeyDown(Lgt::Key::S)) {
         transform.position.y -= 0.1f;
     }

@@ -56,9 +56,6 @@ void Renderer::recreateSwapchain() {
 
 void Renderer::Render(DrawList* list, uint32_t frameIndex) {
 
-    if (!BeginFrame(frameIndex))
-        return; // swapchain out-of-date, skip this frame
-
     // TODO-------------------------------------------
     auto* ubo = g_Buffers.Get(frameUBO_[currentFrame_]);
     LGT_ASSERT(ubo, "");
@@ -82,6 +79,8 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
     scissor.extent = swapchain_.Extent();
 
     vkCmdSetScissor(cmd, 0, 1, &scissor);
+    
+    BeginRendering(cmd, true);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, TraingleGfxPipeline_);
 
     for (int i = 0; i < list->count; ++i) {
@@ -100,8 +99,7 @@ void Renderer::Render(DrawList* list, uint32_t frameIndex) {
         vkCmdPushDataEXT(cmd, &pushDataInfo);
         vkCmdDraw(cmd, list->indexCounts[i], 1, 0, 0);
     }
-
-    EndFrame();
+    EndRendering(cmd);
 }
 
 bool Renderer::BeginFrame(uint32_t frameindex) {
@@ -159,6 +157,11 @@ bool Renderer::BeginFrame(uint32_t frameindex) {
     if (vkBeginCommandBuffer(cmd, &beginInfo) != VK_SUCCESS)
         throw std::runtime_error("vkBeginCommandBuffer failed");
 
+    VkCommandBuffer uiCmd = uiCommandBuffers_[currentFrame_];
+    vkResetCommandBuffer(uiCmd, 0);
+    if (vkBeginCommandBuffer(uiCmd, &beginInfo) != VK_SUCCESS)
+        throw std::runtime_error("vkBeginCommandBuffer failed");
+
     vkCmdBindResourceHeapEXT(cmd, &resourceBind);
     vkCmdBindSamplerHeapEXT(cmd, &samplerBind);
 
@@ -188,50 +191,78 @@ bool Renderer::BeginFrame(uint32_t frameindex) {
                          1,
                          &renderBarrier);
 
+    return true;
+}
+
+void Renderer::BeginRendering(VkCommandBuffer cmd, bool clearColor) {
+    if (!clearColor) {
+        VkImageMemoryBarrier syncBarrier{};
+        syncBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        syncBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        syncBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        syncBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        syncBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        syncBarrier.image = swapchain_.Images()[currentImageIndex_];
+        syncBarrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        syncBarrier.subresourceRange.baseMipLevel   = 0;
+        syncBarrier.subresourceRange.levelCount     = 1;
+        syncBarrier.subresourceRange.baseArrayLayer = 0;
+        syncBarrier.subresourceRange.layerCount     = 1;
+        vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &syncBarrier);
+    }
+
     VkRenderingAttachmentInfo colorAttachment{};
     colorAttachment.sType            = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    colorAttachment.imageView        = swapchain_.ImageViews()[currentImageIndex_]; // Your image view getter
+    colorAttachment.imageView        = swapchain_.ImageViews()[currentImageIndex_];
     colorAttachment.imageLayout      = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    colorAttachment.loadOp           = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.loadOp           = clearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
     colorAttachment.storeOp          = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}}; // Clear to black
+    colorAttachment.clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}}; 
 
     VkRenderingInfo renderingInfo{};
     renderingInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
-    renderingInfo.renderArea           = {{0, 0}, swapchain_.Extent()}; // Your swapchain VkExtent2D
+    renderingInfo.renderArea           = {{0, 0}, swapchain_.Extent()};
     renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = 1;
     renderingInfo.pColorAttachments    = &colorAttachment;
 
     vkCmdBeginRendering(cmd, &renderingInfo);
-    return true;
+}
+
+void Renderer::EndRendering(VkCommandBuffer cmd) {
+    vkCmdEndRendering(cmd);
 }
 
 void Renderer::EndFrame() {
     auto cmd = commandBuffers_[currentFrame_];
-
-    vkCmdEndRendering(cmd);
+    auto uiCmd = uiCommandBuffers_[currentFrame_];
 
     VkImageMemoryBarrier barrier{};
     barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED; // Use COLOR_ATTACHMENT_OPTIMAL if you render to it first
+    barrier.oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
     barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    barrier.srcAccessMask       = 0;
+    barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     barrier.dstAccessMask       = 0;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = swapchain_.Images()[currentImageIndex_]; // You need to implement a getter for the current image handle
+    barrier.image = swapchain_.Images()[currentImageIndex_];
     barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel   = 0;
     barrier.subresourceRange.levelCount     = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount     = 1;
 
+    // We do the transition on uiCmd, which is the last buffer to execute
     vkCmdPipelineBarrier(
-        cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        uiCmd, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
     if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
         throw std::runtime_error("vkEndCommandBuffer failed");
+        
+    if (vkEndCommandBuffer(uiCmd) != VK_SUCCESS)
+        throw std::runtime_error("vkEndCommandBuffer failed");
+
+    VkCommandBuffer submitCmds[] = {cmd, uiCmd};
 
     VkSemaphore          waitSems[]   = {imageAvailableSems_[currentFrame_]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -242,8 +273,8 @@ void Renderer::EndFrame() {
     submitInfo.waitSemaphoreCount   = 1;
     submitInfo.pWaitSemaphores      = waitSems;
     submitInfo.pWaitDstStageMask    = waitStages;
-    submitInfo.commandBufferCount   = 1;
-    submitInfo.pCommandBuffers      = &cmd;
+    submitInfo.commandBufferCount   = 2;
+    submitInfo.pCommandBuffers      = submitCmds;
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signalSems;
 
@@ -443,6 +474,7 @@ void Renderer::createCommandPool() {
 
 void Renderer::createCommandBuffers() {
     commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+    uiCommandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -451,6 +483,9 @@ void Renderer::createCommandBuffers() {
     allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
     if (vkAllocateCommandBuffers(Lgt::Vulkan::g_Context.device->Logical(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS)
+        throw std::runtime_error("vkAllocateCommandBuffers failed");
+        
+    if (vkAllocateCommandBuffers(Lgt::Vulkan::g_Context.device->Logical(), &allocInfo, uiCommandBuffers_.data()) != VK_SUCCESS)
         throw std::runtime_error("vkAllocateCommandBuffers failed");
 }
 

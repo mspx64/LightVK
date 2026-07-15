@@ -19,7 +19,7 @@ InputManager::InputManager(GLFWwindow* window)
     m_BtnPrev.fill(false);
 }
 
-void InputManager::BeginFrame() {
+void InputManager::ResetFrame() {
     // Snapshot previous state
     m_KeyPrev = m_KeyCurr;
     m_BtnPrev = m_BtnCurr;

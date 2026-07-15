@@ -1,4 +1,5 @@
 #include "SceneGraph.h"
+#include "Engine/Scene/Entity.h"
 #include "Engine/Scene/Components.h"
 #include "Engine/Core/Logger.h"
 

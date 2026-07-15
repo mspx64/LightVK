@@ -5,7 +5,7 @@ class World;
 class Entity;
 } // namespace  Lgt
 
-namespace Lgt::Systems {
+namespace Lgt::System {
 
 class Transform {
 public:

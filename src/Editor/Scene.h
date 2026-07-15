@@ -17,7 +17,7 @@ private:
     entt::registry registry_;
 public:
     void           updateDrawList();
-    Gpu::DrawList* drawList() { return &drawList_; }
+    Gpu::DrawList* DrawList() { return &drawList_; }
 };
 
 } // namespace  Lgt::Editor

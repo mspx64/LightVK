@@ -30,9 +30,27 @@ class Renderer {
 public:
     void Init(GLFWwindow* window);
     void ShutDown();
+    // Issues rendering commands to the command buffer.
+    // NOTE: Must be called between BeginFrame() and EndFrame().
     void Render(DrawList* list, uint32_t frameIndex);
+
+    // Begins dynamic rendering on the specified command buffer.
+    // If clearColor is true, the attachment is cleared; otherwise it is loaded.
+    void BeginRendering(VkCommandBuffer cmd, bool clearColor = true);
+
+    // Ends dynamic rendering on the specified command buffer.
+    void EndRendering(VkCommandBuffer cmd);
+
+    // Starts a new frame, acquires swapchain image, begins command buffers.
+    // Returns false if swapchain was recreated (skip frame).
     bool BeginFrame(uint32_t frameIndex);
+
+    // Ends the frame, ends command buffers, submits queue and presents.
     void EndFrame();
+
+    VkCommandBuffer GetCurrentCommandBuffer() const { return commandBuffers_[currentFrame_]; }
+    VkCommandBuffer GetUICommandBuffer() const { return uiCommandBuffers_[currentFrame_]; }
+    VkFormat        SwapchainFormat() const { return swapchain_.Format(); }
 
 private:
     GLFWwindow* window_ = nullptr;
@@ -42,6 +60,7 @@ private:
     // Frame resources
     VkCommandPool                commandPool_ = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers_;
+    std::vector<VkCommandBuffer> uiCommandBuffers_;
     std::vector<BufferHandle>    frameUBO_;
 
     // Sync

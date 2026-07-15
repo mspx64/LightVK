@@ -1,15 +1,15 @@
-#include "Engine/Scene/Entity.h"
+#pragma once
 
 namespace Lgt {
+class Entity;
 class SceneGraph {
 public:
-    explicit SceneGraph(World* world) {};
+    SceneGraph() = default;
     void Detach(Entity entity);
     void Attach(Entity child, Entity parent);
     void SetParent(Entity parent, Entity child);
 
 private:
     [[nodiscard]] bool IsDescendant(Entity parent, Entity entity) const noexcept;
-    World*             world_;
 };
 } // namespace Lgt

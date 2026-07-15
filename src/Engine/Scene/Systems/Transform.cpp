@@ -4,12 +4,12 @@
 
 namespace Lgt {
 
-Systems::Transform::Transform(World* world) {
+System::Transform::Transform(World* world) {
     LGT_ASSERT(world, "");
     world_ = world;
 }
 
-void Systems::Transform::Update() {
+void System::Transform::Update() {
 
     const auto& view = world_->Registry().view<Component::Hierarchy, Component::WorldTransform, Component::LocalTransform>();
 
@@ -22,7 +22,7 @@ void Systems::Transform::Update() {
     }
 }
 
-void Systems::Transform::ComputeWorld(Entity entity) {
+void System::Transform::ComputeWorld(Entity entity) {
     if (!entity.IsValid())
         return;
 
@@ -39,7 +39,7 @@ void Systems::Transform::ComputeWorld(Entity entity) {
     }
 }
 
-void Systems::Transform::UpdateSubtree(Entity entity) {
+void System::Transform::UpdateSubtree(Entity entity) {
 
     if (!entity.IsValid())
         return;

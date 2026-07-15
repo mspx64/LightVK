@@ -13,11 +13,10 @@ Entity World::CreateEntity(std::string name) {
     auto   handle = m_Registry.create();
     Entity e(handle, this);
     // every entity must have this components;
-
+    e.Add<Component::Tag>(name);
     e.Add<Component::Hierarchy>();
     e.Add<Component::WorldTransform>();
     e.Add<Component::LocalTransform>();
-
     return e;
 }
 

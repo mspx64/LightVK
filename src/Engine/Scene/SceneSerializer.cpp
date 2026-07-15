@@ -8,11 +8,11 @@
 
 namespace Lgt {
 
-SceneSerializer::SceneSerializer(World* world) : m_World(world) {}
+SceneSerializer::SceneSerializer(World* world)
+    : m_World(world) {}
 
-template <typename T>
-static void SerializeComponentArray(std::ofstream& out, entt::registry& reg) {
-    auto view = reg.view<T>();
+template <typename T> static void SerializeComponentArray(std::ofstream& out, entt::registry& reg) {
+    auto     view  = reg.view<T>();
     uint32_t count = (uint32_t)view.size();
     out.write(reinterpret_cast<const char*>(&count), sizeof(uint32_t));
 
@@ -26,15 +26,14 @@ static void SerializeComponentArray(std::ofstream& out, entt::registry& reg) {
     }
 }
 
-template <typename T>
-static void DeserializeComponentArray(std::ifstream& in, entt::registry& reg) {
+template <typename T> static void DeserializeComponentArray(std::ifstream& in, entt::registry& reg) {
     uint32_t count;
     in.read(reinterpret_cast<char*>(&count), sizeof(uint32_t));
 
     for (uint32_t i = 0; i < count; ++i) {
         entt::entity e;
         in.read(reinterpret_cast<char*>(&e), sizeof(entt::entity));
-        
+
         if (!reg.valid(e)) {
             e = reg.create(e);
         }
@@ -59,13 +58,13 @@ bool SceneSerializer::SerializeBinary(const std::filesystem::path& filepath) {
     entt::registry& reg = m_World->Registry();
 
     // Serialize Tags (special case for std::string)
-    auto tagView = reg.view<Component::Tag>();
+    auto     tagView  = reg.view<Component::Tag>();
     uint32_t tagCount = (uint32_t)tagView.size();
     out.write(reinterpret_cast<const char*>(&tagCount), sizeof(uint32_t));
     for (auto entity : tagView) {
         entt::entity e = entity;
         out.write(reinterpret_cast<const char*>(&e), sizeof(entt::entity));
-        auto& tag = tagView.get<Component::Tag>(entity);
+        auto&    tag    = tagView.get<Component::Tag>(entity);
         uint32_t strLen = (uint32_t)tag.name.size();
         out.write(reinterpret_cast<const char*>(&strLen), sizeof(uint32_t));
         out.write(tag.name.data(), strLen);
@@ -73,6 +72,8 @@ bool SceneSerializer::SerializeBinary(const std::filesystem::path& filepath) {
 
     // Serialize POD Components
     SerializeComponentArray<Component::WorldTransform>(out, reg);
+    SerializeComponentArray<Component::LocalTransform>(out, reg);
+    SerializeComponentArray<Component::Hierarchy>(out, reg);
     SerializeComponentArray<Component::Material>(out, reg);
     SerializeComponentArray<Component::DirectionalLight>(out, reg);
     SerializeComponentArray<Component::PointLight>(out, reg);
@@ -99,18 +100,21 @@ bool SceneSerializer::DeserializeBinary(const std::filesystem::path& filepath) {
     for (uint32_t i = 0; i < tagCount; ++i) {
         entt::entity e;
         in.read(reinterpret_cast<char*>(&e), sizeof(entt::entity));
-        
+
         uint32_t strLen;
         in.read(reinterpret_cast<char*>(&strLen), sizeof(uint32_t));
         std::string name(strLen, '\0');
         in.read(name.data(), strLen);
 
-        if (!reg.valid(e)) e = reg.create(e);
+        if (!reg.valid(e))
+            e = reg.create(e);
         reg.emplace_or_replace<Component::Tag>(e, name);
     }
 
     // Deserialize POD Components
     DeserializeComponentArray<Component::WorldTransform>(in, reg);
+    DeserializeComponentArray<Component::LocalTransform>(in, reg);
+    DeserializeComponentArray<Component::Hierarchy>(in, reg);
     DeserializeComponentArray<Component::Material>(in, reg);
     DeserializeComponentArray<Component::DirectionalLight>(in, reg);
     DeserializeComponentArray<Component::PointLight>(in, reg);

@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
+# 1. Standard Toolchain Configuration
 set(CMAKE_TOOLCHAIN_FILE
     "D:/dev/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING ""
 )
-
 set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
+
 project(LightVK VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -14,28 +15,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/Bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/Bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/Bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/Bin")
 
-file(TO_CMAKE_PATH "$ENV{VULKAN_SDK}" VULKAN_SDK_PATH)
-
+# 2. Pure vcpkg Dependency Discovery
 find_package(Vulkan REQUIRED)
+find_package(volk CONFIG REQUIRED) # <-- Added: Tell vcpkg to find Volk configuration maps
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(fastgltf CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
 
-find_program(GLSLC glslc
-    HINTS "$ENV{VULKAN_SDK}/Bin"
-    NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH
-    REQUIRED
-)
+find_program(GLSLC glslc REQUIRED)
 
-
+# 3. Shader Compilation Logic
 set(SHADER_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")
 set(SHADER_BINARY_DIR "${CMAKE_BINARY_DIR}/shaders")
 
@@ -62,9 +54,7 @@ endforeach()
 
 add_custom_target(compile_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-set(VOLK_SOURCE "${VULKAN_SDK_PATH}/Include/Volk/volk.c"
-    CACHE STRING "Volk loader source path")
-
+# 4. Route execution down to targets sequentially
 add_subdirectory(src/Engine)
 add_subdirectory(src/Editor)
 add_subdirectory(src/Runtime)

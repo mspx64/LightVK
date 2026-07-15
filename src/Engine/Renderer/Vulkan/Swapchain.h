@@ -3,9 +3,10 @@
 #include <limits>
 #include <stdexcept>
 #include <vector>
-#include <GLFW/glfw3.h>
 
 #include "Helpers.h"
+
+#include <GLFW/glfw3.h>
 
 struct SwapchainSupportDetails {
     VkSurfaceCapabilitiesKHR        capabilities{};

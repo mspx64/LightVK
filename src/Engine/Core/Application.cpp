@@ -7,6 +7,7 @@
 #include "Engine/Renderer/Vulkan/Helpers.h"
 #include "Engine/Renderer/Vulkan/Context.h"
 #include "Engine/Renderer/Gpu/Context.h"
+#include "Engine/UI/ImGuiLayer.h"
 #include "Math.h"
 
 namespace Lgt {
@@ -33,6 +34,9 @@ void Application::Init() {
     world_ = std::make_unique<World>();
     input_ = std::make_unique<InputManager>(window_);
 
+    imguiLayer_ = std::make_unique<ImGuiLayer>();
+    imguiLayer_->Init(window_, Gpu::g_Context.renderer->SwapchainFormat());
+
     OnInit();
 }
 
@@ -40,10 +44,13 @@ void Application::Run() {
     uint32_t currentFrame = 0;
 
     while (!glfwWindowShouldClose(window_)) {
+
         timer_->Tick();
-        input_->BeginFrame();
+        input_->ResetFrame();
         world_->Update(1.0f);
+
         OnUpdate(currentFrame);
+
         glfwPollEvents();
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
@@ -51,8 +58,21 @@ void Application::Run() {
 
 void Application::Shutdown() {
     OnShutdown();
+    imguiLayer_->Shutdown();
     Gpu::g_Context.Shutdown();
     Vulkan::g_Context.Shutdown();
+}
+
+void Application::BeginUi() {
+    auto uiCmd = Gpu::g_Context.renderer->GetUICommandBuffer();
+    imguiLayer_->BeginFrame();
+    Gpu::g_Context.renderer->BeginRendering(uiCmd, false);
+}
+
+void Application::EndUi() {
+    auto uiCmd = Gpu::g_Context.renderer->GetUICommandBuffer();
+    imguiLayer_->EndFrame(uiCmd);
+    Gpu::g_Context.renderer->EndRendering(uiCmd);
 }
 
 Application::Application()  = default;

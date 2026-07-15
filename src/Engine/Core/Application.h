@@ -9,6 +9,8 @@ struct GLFWwindow;
 
 namespace Lgt {
 
+class ImGuiLayer;
+
 class Application {
 public:
     Application();
@@ -20,6 +22,9 @@ public:
     void Run();
     void Shutdown();
 protected:
+    void BeginUi();
+    void EndUi();
+
     virtual void OnInit() {}
     virtual void OnUpdate(uint32_t currentFrame) {}
     virtual void OnShutdown() {}
@@ -28,6 +33,7 @@ protected:
     std::unique_ptr<World>        world_;
     std::unique_ptr<InputManager> input_;
     std::unique_ptr<Timer>        timer_;
+    std::unique_ptr<ImGuiLayer>   imguiLayer_;
 };
 
 } // namespace Lgt

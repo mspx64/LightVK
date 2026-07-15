@@ -39,7 +39,7 @@ public:
     explicit InputManager(GLFWwindow* window);
 
     // Call once at start of frame, before any IsKey* queries
-    void BeginFrame();
+    void ResetFrame();
 
     // Held this frame
     [[nodiscard]] bool IsKeyDown(int key) const;

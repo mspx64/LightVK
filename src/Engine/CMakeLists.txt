@@ -6,18 +6,38 @@ file(GLOB_RECURSE CORE_SOURCES
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(LightVKEngine SHARED
     ${CORE_SOURCES}
-    ${VOLK_SOURCE}
 )
+
+
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/ThirdParty/imgui)
+
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+)
+
+target_sources(LightVKEngine PRIVATE ${IMGUI_SOURCES})
+
+get_target_property(VOLK_INCLUDE_DIR volk::volk INTERFACE_INCLUDE_DIRECTORIES)
 
 target_include_directories(LightVKEngine
     PUBLIC
     "${CMAKE_SOURCE_DIR}/src"
-    "${VULKAN_SDK_PATH}/Include"
+    "${VOLK_INCLUDE_DIR}" 
+    "${VOLK_INCLUDE_DIR}/.." 
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
 )
 
 target_link_libraries(LightVKEngine
     PUBLIC
-    Vulkan::Vulkan
+    Vulkan::Headers 
+    volk::volk 
     glfw
     glm::glm
     spdlog::spdlog
@@ -29,10 +49,12 @@ target_compile_definitions(LightVKEngine
     PRIVATE
     LIGHTVK_CORE_BUILD
     PUBLIC
-    VK_NO_PROTOTYPES # Volk owns all Vulkan function pointers
+    IMGUI_IMPL_VULKAN_USE_VOLK
+    VK_NO_PROTOTYPES 
+    VK_ENABLE_BETA_EXTENSIONS 
     GLM_FORCE_DEPTH_ZERO_TO_ONE
     GLM_FORCE_RADIANS
+    GLM_FORCE_PURE
 )
 
 target_compile_options(LightVKEngine PRIVATE -Wno-nullability-completeness)
-
